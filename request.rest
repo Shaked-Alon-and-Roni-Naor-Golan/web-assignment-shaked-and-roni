@@ -1,0 +1,34 @@
+
+###Posts###
+
+POST http://localhost:4000/posts
+Content-Type: application/json
+
+{
+    "title": "second",
+    "sender": "677ff5652758ff9eb4710aaa",
+    "content": "It will surely work"
+}
+
+###
+
+GET http://localhost:4000/posts
+
+###
+
+GET http://localhost:4000/posts?postSender=677ff5652758ff9eb4710aaa
+
+###
+
+GET http://localhost:4000/posts/69736b11cbab9ebf692423ea
+
+###
+
+PUT http://localhost:4000/posts/69736b11cbab9ebf692423ea
+Content-Type: application/json
+
+{
+    "title": "Updated",
+    "sender": "677ff5652758ff9eb4710a1c",
+    "content": "Very job"
+}
