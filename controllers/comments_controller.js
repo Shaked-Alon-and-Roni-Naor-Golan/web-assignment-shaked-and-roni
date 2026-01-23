@@ -1,11 +1,11 @@
 const CommentModel = require("../models/comments_model");
 
 const getAllComments = async (req, res) => {
-  const user = req.query.user;
+  const userId = req.query.userId;
   try {
     let comments;
-    if (user) {
-      comments = await CommentModel.find({ user });
+    if (userId) {
+      comments = await CommentModel.find({ userId });
     } else {
       comments = await CommentModel.find();
     }

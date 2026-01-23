@@ -1,32 +1,33 @@
 
-###Posts
+###Posts###
+
+GET http://localhost:3000/posts
 
 ###
 
-POST http://localhost:4000/posts
+
+POST http://localhost:3000/posts
 Content-Type: application/json
 
 {
-    "title": "second",
+    "title": "Beautiful Post",
     "sender": "677ff5652758ff9eb4710bbb",
-    "content": "It will surely work"
+    "content": "I am happy"
 }
 
-###
-
-GET http://localhost:4000/posts
 
 ###
 
-GET http://localhost:4000/posts?postSender=677ff5652758ff9eb4710bbb
+GET http://localhost:3000/posts/697394c23826c8eaa931bd2a
+
 
 ###
 
-GET http://localhost:4000/posts/69738d301f5dd36c46bf37e3
+GET http://localhost:3000/posts?postSender=677ff5652758ff9eb4710bbb
 
 ###
 
-PUT http://localhost:4000/posts/69738d301f5dd36c46bf37e3
+PUT http://localhost:3000/posts/697394c23826c8eaa931bd2a
 Content-Type: application/json
 
 {
@@ -35,40 +36,42 @@ Content-Type: application/json
     "content": "Very job"
 }
 
-###Comments
+
+
+
+###Comments###
+
+GET http://localhost:3000/comments
 
 ###
 
-POST http://localhost:4000/comments
+POST http://localhost:3000/comments
 Content-Type: application/json
 
 {
-    "user": "677ff5652758ff9eb4710a1c",
-    "content": "bla",
-    "postId": "69738d301f5dd36c46bf37e3"
+    "userId": "677ff5652758ff9eb4710a1c",
+    "content": "good job!",
+    "postId": "697394c23826c8eaa931bd2a"
 }
 
 ###
 
-PUT http://localhost:4000/comments/69738ec71f5dd36c46bf37f6
+PUT http://localhost:3000/comments/697395d63826c8eaa931bd2c
 Content-Type: application/json
 
 {
-    "content": "content post updating"
+    "content": "content updated"
 }
-###
-
-GET http://localhost:4000/comments
 
 ###
 
-DELETE http://localhost:4000/comments/69738ec71f5dd36c46bf37f6
+GET http://localhost:3000/comments/697395d63826c8eaa931bd2c
 
 ###
 
-GET http://localhost:4000/comments/69738ec71f5dd36c46bf37f6
+DELETE http://localhost:3000/comments/697395d63826c8eaa931bd2c
 
 ###
 
-GET http://localhost:4000/comments/post/69738d301f5dd36c46bf37e3
+GET http://localhost:3000/comments/post/697394c23826c8eaa931bd2a
 
