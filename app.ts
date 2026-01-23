@@ -9,7 +9,7 @@ const app = express();
 mongoose.connect(process.env.DB_CONNECT);
 const db = mongoose.connection;
 db.on("error", (error) => console.error(error));
-db.once("open", () => console.log("Connected to database"));
+db.once("open", () => console.log("Connected to database successfully"));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
