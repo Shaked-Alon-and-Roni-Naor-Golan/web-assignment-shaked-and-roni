@@ -10,15 +10,15 @@ POST http://localhost:3000/posts
 Content-Type: application/json
 
 {
-    "title": "Beautiful Post",
+    "title": "Very Beautiful Post",
     "sender": "677ff5652758ff9eb4710bbb",
-    "content": "I am happy"
+    "content": "He is happy"
 }
 
 
 ###
 
-GET http://localhost:3000/posts/697394c23826c8eaa931bd2a
+GET http://localhost:3000/posts/6973d599c6d565599c94e676
 
 
 ###
@@ -27,13 +27,13 @@ GET http://localhost:3000/posts?postSender=677ff5652758ff9eb4710bbb
 
 ###
 
-PUT http://localhost:3000/posts/697394c23826c8eaa931bd2a
+PUT http://localhost:3000/posts/6973d599c6d565599c94e676
 Content-Type: application/json
 
 {
-    "title": "Updated g",
+    "title": "Updated title",
     "sender": "677ff5652758ff9eb4710a1c",
-    "content": "Very job"
+    "content": "Updated content"
 }
 
 

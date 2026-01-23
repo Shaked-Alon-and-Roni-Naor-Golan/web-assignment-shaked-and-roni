@@ -3,15 +3,15 @@ import { Post } from "../dtos/post";
 import { PostModel } from "../models/posts_model";
 
 const getAllPosts = async (req: Request, res: Response) => {
-  const postSender = String(req.query.postSender);
+  const postSenderRaw = req.query.postSender;
+  const postSender =
+    typeof postSenderRaw === "string" ? postSenderRaw : undefined;
 
   try {
-    let posts: Post[];
-    if (postSender) {
-      posts = await PostModel.find({ sender: postSender }); // TODO: add reference to users when created
-    } else {
-      posts = await PostModel.find();
-    }
+    const posts = postSender
+      ? await PostModel.find({ sender: postSender }) // TODO: add reference to users when created
+      : await PostModel.find();
+
 
     res.send(posts);
   } catch (error) {
