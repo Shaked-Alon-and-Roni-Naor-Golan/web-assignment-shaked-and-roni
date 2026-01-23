@@ -22,15 +22,15 @@ GET http://localhost:4000/posts?postSender=677ff5652758ff9eb4710bbb
 
 ###
 
-GET http://localhost:4000/posts/69738a5298647b9e5a332bf7
+GET http://localhost:4000/posts/69738d301f5dd36c46bf37e3
 
 ###
 
-PUT http://localhost:4000/posts/69738a5298647b9e5a332bf7
+PUT http://localhost:4000/posts/69738d301f5dd36c46bf37e3
 Content-Type: application/json
 
 {
-    "title": "Updated",
+    "title": "Updated g",
     "sender": "677ff5652758ff9eb4710a1c",
     "content": "Very job"
 }
@@ -44,13 +44,13 @@ Content-Type: application/json
 
 {
     "user": "677ff5652758ff9eb4710a1c",
-    "content": "bla bla bla",
-    "postId": "69738a5298647b9e5a332bf7"
+    "content": "bla",
+    "postId": "69738d301f5dd36c46bf37e3"
 }
 
 ###
 
-PUT http://localhost:4000/comments/697378a53c9b95a0964f0ca9
+PUT http://localhost:4000/comments/69738ec71f5dd36c46bf37f6
 Content-Type: application/json
 
 {
@@ -62,13 +62,13 @@ GET http://localhost:4000/comments
 
 ###
 
-GET http://localhost:4000/comments?user=677ff5652758ff9eb4710a1c
+DELETE http://localhost:4000/comments/69738ec71f5dd36c46bf37f6
 
 ###
 
-GET http://localhost:4000/comments/697378a53c9b95a0964f0ca9
+GET http://localhost:4000/comments/69738ec71f5dd36c46bf37f6
 
 ###
 
-GET http://localhost:4000/comments/post/697374f180c2564105c1080d
+GET http://localhost:4000/comments/post/69738d301f5dd36c46bf37e3
 
