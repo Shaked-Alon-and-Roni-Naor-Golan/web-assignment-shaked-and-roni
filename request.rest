@@ -10,29 +10,28 @@ POST http://localhost:3000/posts
 Content-Type: application/json
 
 {
-    "title": "Very Beautiful Post",
-    "sender": "677ff5652758ff9eb4710bbb",
+    "title": "!!!aaa another Post",
+    "sender": "677ff5652758ff9eb4710aaa",
     "content": "He is happy"
 }
 
 
 ###
 
-GET http://localhost:3000/posts/6973d599c6d565599c94e676
+GET http://localhost:3000/posts/6973dee81cf4bfabedfcba85
 
 
 ###
 
-GET http://localhost:3000/posts?postSender=677ff5652758ff9eb4710bbb
+GET http://localhost:3000/posts?postSender=677ff5652758ff9eb4710aaa
 
 ###
 
-PUT http://localhost:3000/posts/6973d599c6d565599c94e676
+PUT http://localhost:3000/posts/6973dee81cf4bfabedfcba85
 Content-Type: application/json
 
 {
     "title": "Updated title",
-    "sender": "677ff5652758ff9eb4710a1c",
     "content": "Updated content"
 }
 
@@ -51,7 +50,7 @@ Content-Type: application/json
 {
     "userId": "677ff5652758ff9eb4710a1c",
     "content": "good job!",
-    "postId": "697394c23826c8eaa931bd2a"
+    "postId": "6973dee81cf4bfabedfcba85"
 }
 
 ###

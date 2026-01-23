@@ -3,14 +3,15 @@ import { CommentModel } from "../models/comments_model";
 import { Comment } from "../dtos/comment";
 
 const getAllComments = async (req: Request, res: Response) => {
-  const userId: string = String(req.query.userId);
+  const userIdRaw = req.query.userId;
+  const userId =
+    typeof userIdRaw === "string" ? userIdRaw : undefined;
+  
   try {
-    let comments: Comment[];
-    if (userId) {
-      comments = await CommentModel.find({ userId: userId }).populate("postId"); // TODO: Add userId to populate if needed
-    } else {
-      comments = await CommentModel.find().populate("postId"); // TODO: Also here
-    }
+    const comments = userId
+          ? await CommentModel.find({ userId: userId }).populate("postId") // TODO: Add userId to populate if needed
+          : await CommentModel.find().populate("postId"); // TODO: Add userId to populate if needed
+    
     res.send(comments);
   } catch (error) {
     res.status(500).send(error.message);
@@ -36,7 +37,7 @@ const getCommentByPostId = async (req: Request, res: Response) => {
   const postId: string = req.params.postId;
 
   try {
-    const comments: Comment[] = await CommentModel.find({ postId: postId });
+    const comments: Comment[] = await CommentModel.find({ postId: postId }).populate("postId"); // TODO: Add userId
     if (comments.length > 0) {
       res.send(comments);
     } else {
