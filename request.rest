@@ -49,7 +49,7 @@ POST http://localhost:3000/comments
 Content-Type: application/json
 
 {
-    "user": "677ff5652758ff9eb4710a1c",
+    "userId": "677ff5652758ff9eb4710a1c",
     "content": "good job!",
     "postId": "697394c23826c8eaa931bd2a"
 }
