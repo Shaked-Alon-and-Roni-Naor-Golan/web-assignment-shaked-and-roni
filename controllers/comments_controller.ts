@@ -91,7 +91,7 @@ const deleteCommentById = async (req: Request, res: Response) => {
   }
 };
 
-module.exports = {
+export {
   getAllComments,
   getCommentById,
   getCommentByPostId,
