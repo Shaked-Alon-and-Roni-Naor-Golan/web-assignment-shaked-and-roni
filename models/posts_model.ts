@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 import { Post } from "../dtos/post";
 
 const postSchema = new mongoose.Schema<Post>({
@@ -7,7 +7,7 @@ const postSchema = new mongoose.Schema<Post>({
     required: true,
   },
   sender: {
-    type: mongoose.Types.ObjectId, // TODO: change to User type when User model is created - add ref to "users"
+    type: String, // TODO: change to User type
     required: true,
   },
   content: String,

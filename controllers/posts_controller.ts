@@ -20,7 +20,7 @@ const getAllPosts = async (req: Request, res: Response) => {
 };
 
 const getPostById = async (req: Request, res: Response) => {
-  const postId: string | string[] = req.params.postId; // TODO: change the types
+  const postId: string = req.params.postId; // TODO: change the types
 
   try {
     const post: Post = await PostModel.findById(postId); // TODO: add reference to users when created
@@ -45,7 +45,7 @@ const createPost = async (req: Request, res: Response) => {
 };
 
 const updatePost = async (req: Request, res: Response) => {
-  const postId: string | string[] = req.params.postId; // TODO: change the types
+  const postId: string = req.params.postId; // TODO: change the types
   const updatedPostContent: Post = req.body;
 
   try {

@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 export type Post = {
     _id: string;
     title: string;
