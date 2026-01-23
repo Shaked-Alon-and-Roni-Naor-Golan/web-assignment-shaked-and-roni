@@ -1,12 +1,14 @@
 
-###Posts###
+###Posts
+
+###
 
 POST http://localhost:4000/posts
 Content-Type: application/json
 
 {
     "title": "second",
-    "sender": "677ff5652758ff9eb4710aaa",
+    "sender": "677ff5652758ff9eb4710bbb",
     "content": "It will surely work"
 }
 
@@ -16,15 +18,15 @@ GET http://localhost:4000/posts
 
 ###
 
-GET http://localhost:4000/posts?postSender=677ff5652758ff9eb4710aaa
+GET http://localhost:4000/posts?postSender=677ff5652758ff9eb4710bbb
 
 ###
 
-GET http://localhost:4000/posts/69736b11cbab9ebf692423ea
+GET http://localhost:4000/posts/69738a5298647b9e5a332bf7
 
 ###
 
-PUT http://localhost:4000/posts/69736b11cbab9ebf692423ea
+PUT http://localhost:4000/posts/69738a5298647b9e5a332bf7
 Content-Type: application/json
 
 {
@@ -32,3 +34,41 @@ Content-Type: application/json
     "sender": "677ff5652758ff9eb4710a1c",
     "content": "Very job"
 }
+
+###Comments
+
+###
+
+POST http://localhost:4000/comments
+Content-Type: application/json
+
+{
+    "user": "677ff5652758ff9eb4710a1c",
+    "content": "bla bla bla",
+    "postId": "69738a5298647b9e5a332bf7"
+}
+
+###
+
+PUT http://localhost:4000/comments/697378a53c9b95a0964f0ca9
+Content-Type: application/json
+
+{
+    "content": "content post updating"
+}
+###
+
+GET http://localhost:4000/comments
+
+###
+
+GET http://localhost:4000/comments?user=677ff5652758ff9eb4710a1c
+
+###
+
+GET http://localhost:4000/comments/697378a53c9b95a0964f0ca9
+
+###
+
+GET http://localhost:4000/comments/post/697374f180c2564105c1080d
+
