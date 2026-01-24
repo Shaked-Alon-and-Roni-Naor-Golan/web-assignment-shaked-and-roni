@@ -23,6 +23,18 @@ const db = mongoose.connection;
 db.on("error", (error) => console.error(error));
 db.once("open", () => console.log("Connected to database successfully"));
 
+const appPromise: Promise<any> = new Promise((resolve, reject) => {
+  mongoose
+    .connect(process.env.DB_CONNECT)
+    .then(() => {
+      console.log("Connected to database successfully");
+      const app = express();
+      app.use(
+        "/api-docs",
+        swaggerUi.serve,
+        swaggerUi.setup(specs, { explorer: true })
+      );
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -44,3 +56,13 @@ app.listen(process.env.PORT, () => {
   console.log(`app listening at http://localhost:${process.env.PORT}`);
   console.log(`Example app listening at http://localhost:${process.env.PORT}`);
 });
+
+      resolve(app);
+    })
+    .catch((error) => {
+      console.error("Failed to connect to database:", error);
+      reject(error);
+    });
+});
+
+export default appPromise;
