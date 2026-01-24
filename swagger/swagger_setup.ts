@@ -4,7 +4,7 @@ export const swaggerOptions = {
     info: {
       title: "Users, Posts and Comments API",
       version: "1.0.0",
-      description: "This is an API",
+      description: "This is an API for managing Users, Posts and Comments functionality",
     },
     components: {
       schemas: {
