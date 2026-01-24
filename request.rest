@@ -23,6 +23,14 @@ Content-Type: application/json
     "email": "roni123@gmail.com"
 }
 
+### Logout from the logged in user
+POST {{baseUrl}}/auth/logout
+Content-Type: application/json
+
+{
+    "password": "12345",
+    "email": "roni123@gmail.com"
+}
 
 
 ###Users###
