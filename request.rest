@@ -43,7 +43,7 @@ Content-Type: application/json
 {
     "username": "Shani",
     "password": "123alon",
-    "email": "shakedalon@gmail.com"
+    "email": "shanialon@gmail.com"
 }
 
 ### UPDATE a user by ID
@@ -73,7 +73,7 @@ Content-Type: application/json
 {
     "title": "Jade Post",
     "sender": "6974c3407b9456ac6fc07288",
-    "content": "He is happy"
+    "content": "I am happy"
 }
 
 
