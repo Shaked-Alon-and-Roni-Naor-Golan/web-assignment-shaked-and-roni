@@ -13,6 +13,7 @@ The API supports full CRUD operations (Create, Read, Update, Delete).
   - Get a single post by ID
   - Get all posts written by a specific sender
   - Update an existing post
+
 - Comments
   - Add comments to a post
   - Get comments by post
@@ -20,6 +21,13 @@ The API supports full CRUD operations (Create, Read, Update, Delete).
   - Get a single comment by ID
   - Update a comment
   - Delete a comment
+
+- Users
+  - Get all users
+  - Get a single user by ID
+  - Create a new user
+  - Delete a user
+  - Update a user
 
 ---
 
@@ -29,4 +37,4 @@ The API supports full CRUD operations (Create, Read, Update, Delete).
 npm install
 
 # Start the server
-npm run start
+npm run dev
