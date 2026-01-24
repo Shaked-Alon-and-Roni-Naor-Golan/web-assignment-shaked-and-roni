@@ -29,13 +29,7 @@ const post = {
   content: "content",
 };
 
-const comment = {
-  userId: user._id,
-  postId: post._id,
-  content: "content",
-};
-
-const headers = { authorization: "" };
+const headers: { authorization: string } = { authorization: "" };
 
 beforeAll(async () => {
   await appPromise;
@@ -53,102 +47,132 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await PostModel.deleteMany({ sender: post.sender });
+  await CommentModel.deleteMany({});
+  await PostModel.deleteMany({ sender: post._id });
   await UserModel.deleteMany({ email: user.email });
 
   await mongoose.connection.close();
 });
 
 afterEach(async () => {
-  await CommentModel.deleteMany({ user: comment.userId });
+  await CommentModel.deleteMany({});
 });
 
 describe("Comments", () => {
   test("Get All Comments", async () => {
-    await CommentModel.create(comment);
+    const comment = await CommentModel.create({
+      userId: user._id,
+      postId: post._id,
+      content: "comment content",
+    });
 
     const res = await request(await appPromise)
       .get("/comments")
       .set(headers);
 
     expect(res.statusCode).toEqual(200);
+    expect(res.body.length).toBe(1);
+
+    const c = res.body[0];
+    expect(c.content).toEqual("comment content");
+    expect(c.userId._id.toString()).toEqual(user._id);
+    expect(c.postId._id.toString()).toEqual(post._id);
   });
 
   test("Get Comment By ID", async () => {
-    const commentId = (await CommentModel.create(comment))._id;
+    const comment = await CommentModel.create({
+      userId: user._id,
+      postId: post._id,
+      content: "comment content",
+    });
 
     const res = await request(await appPromise)
-      .get(`/comments/${commentId}`)
+      .get(`/comments/${comment._id}`)
       .set(headers);
 
     expect(res.statusCode).toEqual(200);
-
-    expect({ postId: post._id, userId: user._id, content: comment.content }).toEqual(comment);
+    expect(res.body.content).toEqual("comment content");
+    expect(res.body.userId._id.toString()).toEqual(user._id);
+    expect(res.body.postId._id.toString()).toEqual(post._id);
   });
 
   test("Get Comment by Post ID", async () => {
-    await CommentModel.create(comment);
+    const comment = await CommentModel.create({
+      userId: user._id,
+      postId: post._id,
+      content: "comment content",
+    });
 
     const res = await request(await appPromise)
-      .get(`/comments/post/${comment.postId}`)
+      .get(`/comments/post/${post._id}`)
       .set(headers);
 
     expect(res.statusCode).toEqual(200);
+    expect(res.body.length).toBe(1);
+    expect(res.body[0].content).toEqual("comment content");
+    expect(res.body[0].userId._id.toString()).toEqual(user._id);
+    expect(res.body[0].postId._id.toString()).toEqual(post._id);
   });
 
-//   test("Create Comment", async () => {
-//     const res = await request(await appPromise)
-//       .post("/comments/")
-//       .set(headers)
-//       .send(comment);
+  test("Create Comment", async () => {
+    const newComment = {
+      userId: user._id,
+      postId: post._id,
+      content: "new comment",
+    };
 
-//     expect(res.statusCode).toEqual(201);
+    const res = await request(await appPromise)
+      .post("/comments")
+      .set(headers)
+      .send(newComment);
 
-//     const { post, user, content } = res.body;
-//     expect({ post, user, content }).toEqual(comment);
+    expect(res.statusCode).toEqual(201);
 
-//     const {
-//       postId: postDB,
-//       userId: ownerDB,
-//       content: contentDB,
-//     } = await CommentModel.findOne({ user: comment.userId });
-//     expect({
-//       post: postDB._id.toString(),
-//       user: ownerDB._id.toString(),
-//       content: contentDB,
-//     }).toEqual(comment);
-//   });
+    const c = res.body;
+    expect(c.content).toEqual("new comment");
 
-//   test("Update Comment", async () => {
-//     const commentId = (await CommentModel.create(comment))._id;
+    // POST response לא תמיד populated, לכן נבדוק עם DB
+    const commentDB = await CommentModel.findById(c._id);
+    expect(commentDB).not.toBeNull();
+    expect(commentDB.content).toEqual("new comment");
+    expect(commentDB.userId.toString()).toEqual(user._id);
+    expect(commentDB.postId.toString()).toEqual(post._id);
+  });
 
-//     const res = await request(await appPromise)
-//       .put(`/comments/${commentId}`)
-//       .set(headers)
-//       .send({ content: "content" });
+  test("Update Comment", async () => {
+    const comment = await CommentModel.create({
+      userId: user._id,
+      postId: post._id,
+      content: "original",
+    });
 
-//     expect(res.statusCode).toEqual(201);
+    const res = await request(await appPromise)
+      .put(`/comments/${comment._id}`)
+      .set(headers)
+      .send({ content: "updated content" });
 
-//     const { content, userId, postId } = await CommentModel.findOne({
-//       _id: commentId,
-//     });
-//     expect({
-//       content,
-//       userId: user._id.toString(),
-//       postId: post._id.toString(),
-//     }).toEqual({ content: "content2", user: comment.userId, post: comment.postId });
-//   });
+    expect(res.statusCode).toEqual(201);
+    expect(res.text).toEqual("The comment updated");
 
-//   test("Delete Comment", async () => {
-//     const commentId = (await CommentModel.create(comment))._id;
+    const updatedComment = await CommentModel.findById(comment._id);
+    expect(updatedComment.content).toEqual("updated content");
+  });
 
-//     const res = await request(await appPromise)
-//       .delete(`/comments/${commentId}`)
-//       .set(headers);
+  test("Delete Comment", async () => {
+    const comment = await CommentModel.create({
+      userId: user._id,
+      postId: post._id,
+      content: "to delete",
+    });
 
-//     expect(res.statusCode).toEqual(200);
+    const res = await request(await appPromise)
+      .delete(`/comments/${comment._id}`)
+      .set(headers);
 
-//     const commentDB = await CommentModel.findOne({ _id: commentId });
-//     expect(commentDB).toBeNull();
-//   });
+    expect(res.statusCode).toEqual(200);
+    expect(res.text).toEqual("The comment deleted");
+
+    const commentDB = await CommentModel.findById(comment._id);
+    expect(commentDB).toBeNull();
+  });
 });
