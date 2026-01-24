@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 
 const commentsSchema = new mongoose.Schema<Comment>({
   userId: {
-    type: String, //TODO: change to User type
+    type: mongoose.Types.ObjectId,
+    ref: "users",
     required: true,
   },
   postId: {

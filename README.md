@@ -23,7 +23,7 @@ The API supports full CRUD operations (Create, Read, Update, Delete).
 
 ---
 
-### Installation & Run
+## Installation & Run
 
 # Install dependencies
 npm install

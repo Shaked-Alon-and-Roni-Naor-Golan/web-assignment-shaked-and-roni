@@ -7,7 +7,8 @@ const postSchema = new mongoose.Schema<Post>({
     required: true,
   },
   sender: {
-    type: String, // TODO: change to User type
+    type: mongoose.Types.ObjectId,
+    ref: "users",
     required: true,
   },
   content: String,
