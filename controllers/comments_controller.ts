@@ -9,8 +9,8 @@ const getAllComments = async (req: Request, res: Response) => {
   
   try {
     const comments = userId
-          ? await CommentModel.find({ userId: userId }).populate("postId") // TODO: Add userId to populate if needed
-          : await CommentModel.find().populate("postId"); // TODO: Add userId to populate if needed
+          ? await CommentModel.find({ userId: userId }).populate("userId").populate({ path: "postId", populate: { path: "sender", model: "users" } })
+          : await CommentModel.find().populate("userId").populate({ path: "postId", populate: { path: "sender", model: "users" } });
     
     res.send(comments);
   } catch (error) {
@@ -22,7 +22,7 @@ const getCommentById = async (req: Request, res: Response) => {
   const commentId: string = req.params.commentId;
 
   try {
-    const comment: Comment = await CommentModel.findById(commentId).populate("postId"); // TODO: Add userId
+    const comment: Comment = await CommentModel.findById(commentId).populate("userId").populate({ path: "postId", populate: { path: "sender", model: "users" } });
     if (comment) {
       res.send(comment);
     } else {
@@ -37,7 +37,7 @@ const getCommentByPostId = async (req: Request, res: Response) => {
   const postId: string = req.params.postId;
 
   try {
-    const comments: Comment[] = await CommentModel.find({ postId: postId }).populate("postId"); // TODO: Add userId
+    const comments: Comment[] = await CommentModel.find({ postId: postId }).populate("userId").populate({ path: "postId", populate: { path: "sender", model: "users" } });
     if (comments.length > 0) {
       res.send(comments);
     } else {
