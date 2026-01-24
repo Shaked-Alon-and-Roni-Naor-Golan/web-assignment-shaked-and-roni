@@ -1,3 +1,5 @@
+import { authenticateToken } from "./middlewares/auth_middleware";
+
 const dotenv = require("dotenv");
 const express = require("express");
 const mongoose = require("mongoose");
@@ -14,12 +16,18 @@ db.once("open", () => console.log("Connected to database successfully"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const postsRouter = require("./routes/posts_route");
-const commentsRouter = require("./routes/comments_route");
-const usersRouter = require("./routes/users_route");
+app.use(authenticateToken);
 
+const authRouter = require("./routes/auth_route");
+app.use("/auth", authRouter);
+
+const postsRouter = require("./routes/posts_route");
 app.use("/posts", postsRouter);
+
+const commentsRouter = require("./routes/comments_route");
 app.use("/comments", commentsRouter);
+
+const usersRouter = require("./routes/users_route");
 app.use("/users", usersRouter);
 
 app.listen(process.env.PORT, () => {

@@ -1,33 +1,94 @@
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTc0YzM0MDdiOTQ1NmFjNmZjMDcyODgiLCJpYXQiOjE3NjkyNjExMjksImV4cCI6MTc2OTI2MTQyOX0.ZktR0xQlc_yLlPjH0nwjZH0zs3Hjv0PKvOYPMKRRwsk
+
+@baseUrl = http://localhost:3000
+
+###Authentication###
+
+### Register as a new user
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+    "username": "roninago",
+    "password": "12345",
+    "email": "roni123@gmail.com"
+}
+
+### Login as an existing user and get a token
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "password": "12345",
+    "email": "roni123@gmail.com"
+}
+
+
+
+###Users###
+
+### GET all users
+GET {{baseUrl}}/users
+Authorization: Bearer {{token}}
+
+###  GET a user by ID
+GET {{baseUrl}}/users/6974c3407b9456ac6fc07288
+Authorization: Bearer {{token}}
+
+### POST a new user
+POST {{baseUrl}}/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "username": "Shani",
+    "password": "123alon",
+    "email": "shanialon@gmail.com"
+}
+
+### UPDATE a user by ID
+PUT {{baseUrl}}/users/6974c64ece0359118343d4a3
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "username": "Jade",
+    "password": "alon",
+    "email": "updated@gmail.com"
+}
+
+
 
 ###Posts###
 
-GET http://localhost:3000/posts
+### GET all posts
+GET {{baseUrl}}/posts
+Authorization: Bearer {{token}}
 
-###
-
-
-POST http://localhost:3000/posts
+### POST a new post
+POST {{baseUrl}}/posts
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
     "title": "Jade Post",
-    "sender": "6974ae520088a0a284282737",
-    "content": "He is happy"
+    "sender": "6974c3407b9456ac6fc07288",
+    "content": "I am happy"
 }
 
 
-###
+### GET a post by ID
+GET {{baseUrl}}/posts/6974c4dd7b9456ac6fc0729b
+Authorization: Bearer {{token}}
 
-GET http://localhost:3000/posts/6974abd76a5ee5a1dbb13e9b
 
+### GET posts by sender ID
+GET {{baseUrl}}/posts?postSender=6974c3407b9456ac6fc07288
+Authorization: Bearer {{token}}
 
-###
-
-GET http://localhost:3000/posts?postSender=677ff5652758ff9eb4710aaa
-
-###
-
-PUT http://localhost:3000/posts/6974a5df1b4635ab0d032724
+### UPDATE a post by ID
+PUT {{baseUrl}}/posts/6974c607ce0359118343d490
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -37,74 +98,42 @@ Content-Type: application/json
 
 
 
-
 ###Comments###
 
-GET http://localhost:3000/comments
+### GET all comments
+GET {{baseUrl}}/comments
+Authorization: Bearer {{token}}
 
-###
-
-POST http://localhost:3000/comments
+### POST a new comment
+POST {{baseUrl}}/comments
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "userId": "6974ae690088a0a28428273a",
-    "content": "good post!",
-    "postId": "6974ae800088a0a28428273d"
+    "userId": "6974c64ece0359118343d4a3",
+    "content": "another post!",
+    "postId": "6974c4dd7b9456ac6fc0729b"
 }
 
-###
-
-PUT http://localhost:3000/comments/697395d63826c8eaa931bd2c
+### UPDATE a comment by ID
+PUT {{baseUrl}}/comments/6974c744ce0359118343d4ab
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
     "content": "content updated"
 }
 
-###
+### GET a comment by ID
+GET {{baseUrl}}/comments/6974c744ce0359118343d4ab
+Authorization: Bearer {{token}}
 
-GET http://localhost:3000/comments/697395d63826c8eaa931bd2c
+###  DELETE a comment by ID
+DELETE {{baseUrl}}/comments/6974c744ce0359118343d4ab
+Authorization: Bearer {{token}}
 
-###
-
-DELETE http://localhost:3000/comments/697395d63826c8eaa931bd2c
-
-###
-
-GET http://localhost:3000/comments/post/697394c23826c8eaa931bd2a
-
-
-
-
-###Users###
+###  GET comments by post ID
+GET {{baseUrl}}/comments/post/6974c4dd7b9456ac6fc0729b
+Authorization: Bearer {{token}}
 
 ###
-
-GET http://localhost:3000/users
-
-###
-
-GET http://localhost:3000/users/69749ff46c77789108abe4bd
-
-###
-
-POST http://localhost:3000/users
-Content-Type: application/json
-
-{
-    "username": "Shani",
-    "password": "123alon",
-    "email": "shakedalon@gmail.com"
-}
-
-###
-
-PUT http://localhost:3000/users/69749ff46c77789108abe4bd
-Content-Type: application/json
-
-{
-    "username": "Jade",
-    "password": "alon",
-    "email": "updated@gmail.com"
-}
