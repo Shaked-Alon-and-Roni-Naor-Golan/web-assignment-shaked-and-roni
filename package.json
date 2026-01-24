@@ -7,7 +7,7 @@
     "dev": "nodemon app.ts",
     "start": "tsc && node dist/app.js",
     "test1": "echo \"Error: no test specified\" && exit 1",
-    "test": "jest",
+    "test": "NODE_ENV=test jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage"
   },

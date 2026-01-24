@@ -52,10 +52,17 @@ app.use("/comments", commentsRouter);
 const usersRouter = require("./routes/users_route");
 app.use("/users", usersRouter);
 
-app.listen(process.env.PORT, () => {
-  console.log(`app listening at http://localhost:${process.env.PORT}`);
-  console.log(`Example app listening at http://localhost:${process.env.PORT}`);
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(process.env.PORT, () => {
+    console.log(`app listening at http://localhost:${process.env.PORT}`);
+    console.log(`Example app listening at http://localhost:${process.env.PORT}`);
+  });
+}
+
+// app.listen(process.env.PORT, () => {
+//   console.log(`app listening at http://localhost:${process.env.PORT}`);
+//   console.log(`Example app listening at http://localhost:${process.env.PORT}`);
+// });
 
       resolve(app);
     })

@@ -13,7 +13,7 @@ import { userToTokenData } from "../utils/auth/user_to_token_data";
 const user = {
   username: "auth",
   password: "auth",
-  email: "auth@auth.auth",
+  email: "auth_test@auth.auth",
 };
 
 afterAll(async () => {
