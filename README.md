@@ -29,6 +29,8 @@ The API supports full CRUD operations (Create, Read, Update, Delete).
   - Delete a user
   - Update a user
 
+Note: Each user can create posts and add comments to specific posts.
+
 ---
 
 ## Installation & Run
