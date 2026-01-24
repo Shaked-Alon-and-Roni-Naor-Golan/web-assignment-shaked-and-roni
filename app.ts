@@ -1,12 +1,22 @@
+import { swaggerOptions } from "./swagger/swagger_setup";
 import { authenticateToken } from "./middlewares/auth_middleware";
 
 const dotenv = require("dotenv");
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
 
 dotenv.config();
 const app = express();
+
+const specs = swaggerJsdoc(swaggerOptions);
+app.use(
+  "/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(specs, { explorer: true })
+);
 
 mongoose.connect(process.env.DB_CONNECT);
 const db = mongoose.connection;
