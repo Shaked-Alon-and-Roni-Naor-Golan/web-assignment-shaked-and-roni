@@ -22,18 +22,18 @@ export const swaggerOptions = {
           properties: {
             title: { type: "string" },
             content: { type: "string" },
-            user: { $ref: "#/components/schemas/User" },
+            sender: { $ref: "#/components/schemas/User" },
           },
-          required: ["title", "content", "user"],
+          required: ["title", "content", "sender"],
         },
         Comment: {
           type: "object",
           properties: {
             content: { type: "string" },
-            user: { $ref: "#/components/schemas/User" },
-            post: { $ref: "#/components/schemas/Post" },
+            userId: { $ref: "#/components/schemas/User" },
+            postId: { $ref: "#/components/schemas/Post" },
           },
-          required: ["content", "user", "post"],
+          required: ["content", "userId", "postId"],
         },
       },
     },
