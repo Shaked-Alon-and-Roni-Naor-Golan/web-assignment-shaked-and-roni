@@ -1,8 +1,9 @@
 import { Post } from "./post";
+import { User } from "./user";
 
 export type Comment = {
   _id: string;
-  userId: string; // TODO: change to User type
+  userId: User
   postId: Post;
   content: string;
 };

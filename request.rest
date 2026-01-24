@@ -10,15 +10,15 @@ POST http://localhost:3000/posts
 Content-Type: application/json
 
 {
-    "title": "!!!aaa another Post",
-    "sender": "677ff5652758ff9eb4710aaa",
+    "title": "Jade Post",
+    "sender": "6974ae520088a0a284282737",
     "content": "He is happy"
 }
 
 
 ###
 
-GET http://localhost:3000/posts/6973dee81cf4bfabedfcba85
+GET http://localhost:3000/posts/6974abd76a5ee5a1dbb13e9b
 
 
 ###
@@ -27,7 +27,7 @@ GET http://localhost:3000/posts?postSender=677ff5652758ff9eb4710aaa
 
 ###
 
-PUT http://localhost:3000/posts/6973dee81cf4bfabedfcba85
+PUT http://localhost:3000/posts/6974a5df1b4635ab0d032724
 Content-Type: application/json
 
 {
@@ -48,9 +48,9 @@ POST http://localhost:3000/comments
 Content-Type: application/json
 
 {
-    "userId": "677ff5652758ff9eb4710a1c",
-    "content": "good job!",
-    "postId": "6973dee81cf4bfabedfcba85"
+    "userId": "6974ae690088a0a28428273a",
+    "content": "good post!",
+    "postId": "6974ae800088a0a28428273d"
 }
 
 ###
@@ -74,3 +74,37 @@ DELETE http://localhost:3000/comments/697395d63826c8eaa931bd2c
 
 GET http://localhost:3000/comments/post/697394c23826c8eaa931bd2a
 
+
+
+
+###Users###
+
+###
+
+GET http://localhost:3000/users
+
+###
+
+GET http://localhost:3000/users/69749ff46c77789108abe4bd
+
+###
+
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+    "username": "Shani",
+    "password": "123alon",
+    "email": "shakedalon@gmail.com"
+}
+
+###
+
+PUT http://localhost:3000/users/69749ff46c77789108abe4bd
+Content-Type: application/json
+
+{
+    "username": "Jade",
+    "password": "alon",
+    "email": "updated@gmail.com"
+}

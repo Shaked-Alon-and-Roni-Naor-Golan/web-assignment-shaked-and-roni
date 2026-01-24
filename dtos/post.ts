@@ -1,8 +1,8 @@
-import { Types } from "mongoose";
+import { User } from "./user";
 
 export type Post = {
     _id: string;
     title: string;
-    sender: string; // TODO: change to User type
+    sender: User;
     content: string;
   };

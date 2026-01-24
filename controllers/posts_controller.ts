@@ -9,8 +9,8 @@ const getAllPosts = async (req: Request, res: Response) => {
 
   try {
     const posts = postSender
-      ? await PostModel.find({ sender: postSender }) // TODO: add reference to users when created
-      : await PostModel.find();
+      ? await PostModel.find({ sender: postSender }).populate("sender")
+      : await PostModel.find().populate("sender");
 
 
     res.send(posts);
@@ -20,10 +20,10 @@ const getAllPosts = async (req: Request, res: Response) => {
 };
 
 const getPostById = async (req: Request, res: Response) => {
-  const postId: string = req.params.postId; // TODO: change the types
+  const postId: string = req.params.postId;
 
   try {
-    const post: Post = await PostModel.findById(postId); // TODO: add reference to users when created
+    const post: Post = (await PostModel.findById(postId).populate("sender"));
     if (post) {
       res.send(post);
     } else {
@@ -45,14 +45,14 @@ const createPost = async (req: Request, res: Response) => {
 };
 
 const updatePost = async (req: Request, res: Response) => {
-  const postId: string = req.params.postId; // TODO: change the types
+  const postId: string = req.params.postId;
   const updatedPostContent: Post = req.body;
 
   try {
     const result = await PostModel.updateOne(
       { _id: postId },
       updatedPostContent
-    ); // TODO: add reference to users when created
+    ).populate("sender");
     if (result.modifiedCount > 0) {
       res.status(201).send();
     } else {
