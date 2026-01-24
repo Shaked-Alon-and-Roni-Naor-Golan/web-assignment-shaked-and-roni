@@ -41,10 +41,10 @@ export const swaggerOptions = {
       "/users": {
         get: {
           summary: "Get all users",
+          tags: ["users"],
           responses: {
             200: {
               description: "A list of users",
-              tags: ["users"],
               content: {
                 "application/json": {
                   schema: {
@@ -146,6 +146,7 @@ export const swaggerOptions = {
         },
         delete: {
           summary: "Delete user by ID",
+          tags: ["users"],
           parameters: [
             {
               name: "userId",
