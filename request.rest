@@ -1,5 +1,4 @@
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTc0YzM0MDdiOTQ1NmFjNmZjMDcyODgiLCJpYXQiOjE3NjkyNjExMjksImV4cCI6MTc2OTI2MTQyOX0.ZktR0xQlc_yLlPjH0nwjZH0zs3Hjv0PKvOYPMKRRwsk
-
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTc0YzM0MDdiOTQ1NmFjNmZjMDcyODgiLCJpYXQiOjE3NjkyNjg3NjAsImV4cCI6MTc2OTI2OTA2MH0.R2Ljr32Y9zr3GsZycbSyv0xsPNp7EWLhcs2WlA25Rvg
 @baseUrl = http://localhost:3000
 
 ###Authentication###
@@ -25,12 +24,7 @@ Content-Type: application/json
 
 ### Logout from the logged in user
 POST {{baseUrl}}/auth/logout
-Content-Type: application/json
-
-{
-    "password": "12345",
-    "email": "roni123@gmail.com"
-}
+Authorization: Bearer {{token}}
 
 
 ###Users###
