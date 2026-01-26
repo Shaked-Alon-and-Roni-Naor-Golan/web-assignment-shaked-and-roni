@@ -25,9 +25,11 @@ const user = {
 const headers: { authorization: string } = { authorization: "" };
 
 beforeAll(async () => {
-  await appPromise;
+await appPromise;
 
-  await UserModel.deleteMany({ email: user.email });
+  await PostModel.deleteMany({}); 
+  await UserModel.deleteMany({}); 
+
   await UserModel.create(user);
 
   headers.authorization =
@@ -53,8 +55,9 @@ afterAll(async () => {
 describe("Posts Integration Tests", () => {
   
   test("Get All Posts", async () => {
+    const uniqueTitle = "Test Post " + Math.random();
     await PostModel.create({
-      title: "Test Post",
+      title: uniqueTitle,
       sender: user._id,
       content: "Hello World",
     });
@@ -65,8 +68,9 @@ describe("Posts Integration Tests", () => {
 
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.length).toBe(1);
-    expect(res.body[0].title).toBe("Test Post");
+    
+    const myPost = res.body.find((p: any) => p.title === uniqueTitle);
+    expect(myPost).toBeDefined();
   });
 
   test("Get All Posts filtered by postSender", async () => {

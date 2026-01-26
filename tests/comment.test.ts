@@ -53,9 +53,9 @@ afterEach(async () => {
 });
 
 afterAll(async () => {
-  await CommentModel.deleteMany({});
-  await PostModel.deleteMany({ sender: post._id });
-  await UserModel.deleteMany({ email: user.email });
+await CommentModel.deleteMany({});
+  await PostModel.deleteMany({});
+  await UserModel.deleteMany({});
   await mongoose.connection.close();
 });
 
