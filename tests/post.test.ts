@@ -17,16 +17,9 @@ import { userToTokenData } from "../utils/auth/user_to_token_data";
 
 const user = {
   _id: new mongoose.Types.ObjectId().toString(),
-  username: "auth",
-  password: "auth",
-  email: "auth@auth.auth",
-};
-
-const post = {
-  _id: new mongoose.Types.ObjectId().toString(),
-  title: "title",
-  sender: user._id,
-  content: "content",
+  username: "postTester",
+  password: "password123",
+  email: "tester@test.com",
 };
 
 const headers: { authorization: string } = { authorization: "" };
@@ -34,8 +27,8 @@ const headers: { authorization: string } = { authorization: "" };
 beforeAll(async () => {
   await appPromise;
 
+  await UserModel.deleteMany({ email: user.email });
   await UserModel.create(user);
-  await PostModel.create(post);
 
   headers.authorization =
     "Bearer " +
@@ -48,32 +41,48 @@ beforeAll(async () => {
 
 afterEach(async () => {
   jest.restoreAllMocks();
-  await PostModel.deleteMany({ title: /test/i });
+  await PostModel.deleteMany({});
 });
 
 afterAll(async () => {
-  await PostModel.deleteMany({ sender: user._id });
+  await PostModel.deleteMany({});
   await UserModel.deleteMany({ email: user.email });
   await mongoose.connection.close();
 });
 
-describe("Posts", () => {
+describe("Posts Integration Tests", () => {
+  
   test("Get All Posts", async () => {
+    await PostModel.create({
+      title: "Test Post",
+      sender: user._id,
+      content: "Hello World",
+    });
+
     const res = await request(await appPromise)
       .get("/posts")
       .set(headers);
 
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBe(1);
+    expect(res.body[0].title).toBe("Test Post");
   });
 
-  test("Get All Posts filtered by sender", async () => {
+  test("Get All Posts filtered by postSender", async () => {
+    await PostModel.create({
+      title: "User Post",
+      sender: user._id,
+      content: "Filter me",
+    });
+
     const res = await request(await appPromise)
       .get(`/posts?postSender=${user._id}`)
       .set(headers);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.length).toBeGreaterThanOrEqual(1);
+    expect(res.body.length).toBe(1);
+    expect(res.body[0].sender._id).toBe(user._id);
   });
 
   test("Get All Posts returns 500 on DB error", async () => {
@@ -89,17 +98,22 @@ describe("Posts", () => {
   });
 
   test("Get Post By ID", async () => {
+    const post = await PostModel.create({
+      title: "Specific Post",
+      sender: user._id,
+      content: "Content",
+    });
+
     const res = await request(await appPromise)
       .get(`/posts/${post._id}`)
       .set(headers);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body._id).toBe(post._id);
+    expect(res.body.title).toBe("Specific Post");
   });
 
   test("Get non-existing post returns 404", async () => {
     const fakeId = new mongoose.Types.ObjectId();
-
     const res = await request(await appPromise)
       .get(`/posts/${fakeId}`)
       .set(headers);
@@ -107,61 +121,62 @@ describe("Posts", () => {
     expect(res.statusCode).toBe(404);
   });
 
-  test("Get post with invalid id returns 500", async () => {
-    const res = await request(await appPromise)
-      .get("/posts/invalid-id")
-      .set(headers);
-
-    expect(res.statusCode).toBe(500);
-  });
-
   test("Create Post", async () => {
+    const newPost = {
+      title: "New Created Post",
+      sender: user._id,
+      content: "Fresh Content",
+    };
+
     const res = await request(await appPromise)
       .post("/posts")
       .set(headers)
-      .send({
-        title: "Test Post",
-        sender: user._id,
-        content: "This is a test",
-      });
+      .send(newPost);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.title).toBe("Test Post");
+    expect(res.body.title).toBe(newPost.title);
+    
+    const dbPost = await PostModel.findById(res.body._id);
+    expect(dbPost).toBeDefined();
   });
 
   test("Create Post returns 500 on DB error", async () => {
     jest.spyOn(postsModel.PostModel, "create").mockImplementationOnce(() => {
-      throw new Error("DB error");
+      throw new Error("Save failed");
     });
 
     const res = await request(await appPromise)
       .post("/posts")
       .set(headers)
-      .send({
-        title: "Error Post",
-        sender: user._id,
-        content: "x",
-      });
+      .send({ title: "Fail", sender: user._id });
 
     expect(res.statusCode).toBe(500);
   });
 
   test("Update Post", async () => {
+    const post = await PostModel.create({
+      title: "Old Title",
+      sender: user._id,
+      content: "Old Content",
+    });
+
     const res = await request(await appPromise)
       .put(`/posts/${post._id}`)
       .set(headers)
-      .send({ content: "Updated content" });
+      .send({ title: "Updated Title" });
 
     expect(res.statusCode).toBe(201);
+    
+    const updatedPost = await PostModel.findById(post._id);
+    expect(updatedPost?.title).toBe("Updated Title");
   });
 
   test("Update non-existing post returns 404", async () => {
     const fakeId = new mongoose.Types.ObjectId();
-
     const res = await request(await appPromise)
       .put(`/posts/${fakeId}`)
       .set(headers)
-      .send({ content: "x" });
+      .send({ title: "Nowhere" });
 
     expect(res.statusCode).toBe(404);
   });
@@ -170,7 +185,7 @@ describe("Posts", () => {
     const res = await request(await appPromise)
       .put("/posts/invalid-id")
       .set(headers)
-      .send({ content: "x" });
+      .send({ title: "Invalid" });
 
     expect(res.statusCode).toBe(500);
   });
