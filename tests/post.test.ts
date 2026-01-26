@@ -193,4 +193,46 @@ describe("Posts Integration Tests", () => {
 
     expect(res.statusCode).toBe(500);
   });
+
+  test("Get Post By ID returns 500 on DB error", async () => {
+  jest.spyOn(postsModel.PostModel, "findById").mockImplementationOnce(() => {
+    throw new Error("DB error");
+  });
+
+  const fakeId = new mongoose.Types.ObjectId();
+  const res = await request(await appPromise)
+    .get(`/posts/${fakeId}`)
+    .set(headers);
+
+  expect(res.statusCode).toBe(500);
+});
+
+test("Update Post returns 500 on DB error", async () => {
+  jest.spyOn(postsModel.PostModel, "updateOne").mockImplementationOnce(() => {
+    throw new Error("DB error");
+  });
+
+  const fakeId = new mongoose.Types.ObjectId();
+  const res = await request(await appPromise)
+    .put(`/posts/${fakeId}`)
+    .set(headers)
+    .send({ title: "Update Fail" });
+
+  expect(res.statusCode).toBe(500);
+});
+
+test("Update Post returns 500 on DB error", async () => {
+  jest.spyOn(postsModel.PostModel, "updateOne").mockImplementationOnce(() => {
+    throw new Error("DB error");
+  });
+
+  const fakeId = new mongoose.Types.ObjectId();
+  const res = await request(await appPromise)
+    .put(`/posts/${fakeId}`)
+    .set(headers)
+    .send({ title: "Update Fail" });
+
+  expect(res.statusCode).toBe(500);
+});
+
 });
