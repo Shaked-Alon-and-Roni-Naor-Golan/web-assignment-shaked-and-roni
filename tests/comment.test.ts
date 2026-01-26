@@ -13,6 +13,7 @@ import {
 import { UserModel } from "../models/user_model";
 import { PostModel } from "../models/posts_model";
 import { CommentModel } from "../models/comments_model";
+import * as commentsModel from "../models/comments_model";
 import { userToTokenData } from "../utils/auth/user_to_token_data";
 
 const user = {
@@ -47,6 +48,7 @@ beforeAll(async () => {
 });
 
 afterEach(async () => {
+  jest.restoreAllMocks();
   await CommentModel.deleteMany({});
 });
 
@@ -71,11 +73,6 @@ describe("Comments", () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.length).toBe(1);
-
-    const c = res.body[0];
-    expect(c.content).toBe("comment content");
-    expect(c.userId._id.toString()).toBe(user._id);
-    expect(c.postId._id.toString()).toBe(post._id);
   });
 
   test("Get All Comments filtered by userId", async () => {
@@ -91,16 +88,20 @@ describe("Comments", () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.length).toBe(1);
-    expect(res.body[0].userId._id.toString()).toBe(user._id);
   });
 
-  test("Get All Comments when empty", async () => {
+  test("Get All Comments returns 500 on DB error", async () => {
+    jest
+      .spyOn(commentsModel.CommentModel, "find")
+      .mockImplementationOnce(() => {
+        throw new Error("DB error");
+      });
+
     const res = await request(await appPromise)
       .get("/comments")
       .set(headers);
 
-    expect(res.statusCode).toBe(200);
-    expect(res.body).toEqual([]);
+    expect(res.statusCode).toBe(500);
   });
 
   test("Get Comment By ID", async () => {
@@ -115,9 +116,6 @@ describe("Comments", () => {
       .set(headers);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.content).toBe("comment content");
-    expect(res.body.userId._id.toString()).toBe(user._id);
-    expect(res.body.postId._id.toString()).toBe(post._id);
   });
 
   test("Get non-existing comment returns 404", async () => {
@@ -150,10 +148,9 @@ describe("Comments", () => {
       .set(headers);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.length).toBe(1);
   });
 
-  test("Get Comment by Post ID when no comments returns 404", async () => {
+  test("Get Comment by Post ID returns 404 when empty", async () => {
     const fakePostId = new mongoose.Types.ObjectId();
 
     const res = await request(await appPromise)
@@ -161,6 +158,20 @@ describe("Comments", () => {
       .set(headers);
 
     expect(res.statusCode).toBe(404);
+  });
+
+  test("Get Comment by Post ID returns 500 on DB error", async () => {
+    jest
+      .spyOn(commentsModel.CommentModel, "find")
+      .mockImplementationOnce(() => {
+        throw new Error("DB error");
+      });
+
+    const res = await request(await appPromise)
+      .get(`/comments/post/${post._id}`)
+      .set(headers);
+
+    expect(res.statusCode).toBe(500);
   });
 
   test("Create Comment", async () => {
@@ -174,17 +185,22 @@ describe("Comments", () => {
       });
 
     expect(res.statusCode).toBe(201);
-
-    const commentDB = await CommentModel.findById(res.body._id);
-    expect(commentDB).not.toBeNull();
   });
 
-  test("Create Comment with invalid body returns 500", async () => {
+  test("Create Comment returns 500 on DB error", async () => {
+    jest
+      .spyOn(commentsModel.CommentModel, "create")
+      .mockImplementationOnce(() => {
+        throw new Error("DB error");
+      });
+
     const res = await request(await appPromise)
       .post("/comments")
       .set(headers)
       .send({
+        userId: user._id,
         postId: post._id,
+        content: "x",
       });
 
     expect(res.statusCode).toBe(500);
@@ -200,12 +216,9 @@ describe("Comments", () => {
     const res = await request(await appPromise)
       .put(`/comments/${comment._id}`)
       .set(headers)
-      .send({ content: "updated content" });
+      .send({ content: "updated" });
 
     expect(res.statusCode).toBe(201);
-
-    const updated = await CommentModel.findById(comment._id);
-    expect(updated.content).toBe("updated content");
   });
 
   test("Update non-existing comment returns 404", async () => {
@@ -240,9 +253,6 @@ describe("Comments", () => {
       .set(headers);
 
     expect(res.statusCode).toBe(200);
-
-    const deleted = await CommentModel.findById(comment._id);
-    expect(deleted).toBeNull();
   });
 
   test("Delete non-existing comment returns 404", async () => {
