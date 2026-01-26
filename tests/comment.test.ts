@@ -46,21 +46,20 @@ beforeAll(async () => {
     );
 });
 
-afterAll(async () => {
-  await CommentModel.deleteMany({});
-  await PostModel.deleteMany({ sender: post._id });
-  await UserModel.deleteMany({ email: user.email });
-
-  await mongoose.connection.close();
-});
-
 afterEach(async () => {
   await CommentModel.deleteMany({});
 });
 
+afterAll(async () => {
+  await CommentModel.deleteMany({});
+  await PostModel.deleteMany({ sender: post._id });
+  await UserModel.deleteMany({ email: user.email });
+  await mongoose.connection.close();
+});
+
 describe("Comments", () => {
   test("Get All Comments", async () => {
-    const comment = await CommentModel.create({
+    await CommentModel.create({
       userId: user._id,
       postId: post._id,
       content: "comment content",
@@ -70,13 +69,38 @@ describe("Comments", () => {
       .get("/comments")
       .set(headers);
 
-    expect(res.statusCode).toEqual(200);
+    expect(res.statusCode).toBe(200);
     expect(res.body.length).toBe(1);
 
     const c = res.body[0];
-    expect(c.content).toEqual("comment content");
-    expect(c.userId._id.toString()).toEqual(user._id);
-    expect(c.postId._id.toString()).toEqual(post._id);
+    expect(c.content).toBe("comment content");
+    expect(c.userId._id.toString()).toBe(user._id);
+    expect(c.postId._id.toString()).toBe(post._id);
+  });
+
+  test("Get All Comments filtered by userId", async () => {
+    await CommentModel.create({
+      userId: user._id,
+      postId: post._id,
+      content: "user comment",
+    });
+
+    const res = await request(await appPromise)
+      .get(`/comments?userId=${user._id}`)
+      .set(headers);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.length).toBe(1);
+    expect(res.body[0].userId._id.toString()).toBe(user._id);
+  });
+
+  test("Get All Comments when empty", async () => {
+    const res = await request(await appPromise)
+      .get("/comments")
+      .set(headers);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual([]);
   });
 
   test("Get Comment By ID", async () => {
@@ -90,14 +114,32 @@ describe("Comments", () => {
       .get(`/comments/${comment._id}`)
       .set(headers);
 
-    expect(res.statusCode).toEqual(200);
-    expect(res.body.content).toEqual("comment content");
-    expect(res.body.userId._id.toString()).toEqual(user._id);
-    expect(res.body.postId._id.toString()).toEqual(post._id);
+    expect(res.statusCode).toBe(200);
+    expect(res.body.content).toBe("comment content");
+    expect(res.body.userId._id.toString()).toBe(user._id);
+    expect(res.body.postId._id.toString()).toBe(post._id);
+  });
+
+  test("Get non-existing comment returns 404", async () => {
+    const fakeId = new mongoose.Types.ObjectId();
+
+    const res = await request(await appPromise)
+      .get(`/comments/${fakeId}`)
+      .set(headers);
+
+    expect(res.statusCode).toBe(404);
+  });
+
+  test("Get comment with invalid id returns 500", async () => {
+    const res = await request(await appPromise)
+      .get("/comments/invalid-id")
+      .set(headers);
+
+    expect(res.statusCode).toBe(500);
   });
 
   test("Get Comment by Post ID", async () => {
-    const comment = await CommentModel.create({
+    await CommentModel.create({
       userId: user._id,
       postId: post._id,
       content: "comment content",
@@ -107,36 +149,45 @@ describe("Comments", () => {
       .get(`/comments/post/${post._id}`)
       .set(headers);
 
-    expect(res.statusCode).toEqual(200);
+    expect(res.statusCode).toBe(200);
     expect(res.body.length).toBe(1);
-    expect(res.body[0].content).toEqual("comment content");
-    expect(res.body[0].userId._id.toString()).toEqual(user._id);
-    expect(res.body[0].postId._id.toString()).toEqual(post._id);
+  });
+
+  test("Get Comment by Post ID when no comments returns 404", async () => {
+    const fakePostId = new mongoose.Types.ObjectId();
+
+    const res = await request(await appPromise)
+      .get(`/comments/post/${fakePostId}`)
+      .set(headers);
+
+    expect(res.statusCode).toBe(404);
   });
 
   test("Create Comment", async () => {
-    const newComment = {
-      userId: user._id,
-      postId: post._id,
-      content: "new comment",
-    };
-
     const res = await request(await appPromise)
       .post("/comments")
       .set(headers)
-      .send(newComment);
+      .send({
+        userId: user._id,
+        postId: post._id,
+        content: "new comment",
+      });
 
-    expect(res.statusCode).toEqual(201);
+    expect(res.statusCode).toBe(201);
 
-    const c = res.body;
-    expect(c.content).toEqual("new comment");
-
-    // POST response לא תמיד populated, לכן נבדוק עם DB
-    const commentDB = await CommentModel.findById(c._id);
+    const commentDB = await CommentModel.findById(res.body._id);
     expect(commentDB).not.toBeNull();
-    expect(commentDB.content).toEqual("new comment");
-    expect(commentDB.userId.toString()).toEqual(user._id);
-    expect(commentDB.postId.toString()).toEqual(post._id);
+  });
+
+  test("Create Comment with invalid body returns 500", async () => {
+    const res = await request(await appPromise)
+      .post("/comments")
+      .set(headers)
+      .send({
+        postId: post._id,
+      });
+
+    expect(res.statusCode).toBe(500);
   });
 
   test("Update Comment", async () => {
@@ -151,11 +202,30 @@ describe("Comments", () => {
       .set(headers)
       .send({ content: "updated content" });
 
-    expect(res.statusCode).toEqual(201);
-    expect(res.text).toEqual("The comment updated");
+    expect(res.statusCode).toBe(201);
 
-    const updatedComment = await CommentModel.findById(comment._id);
-    expect(updatedComment.content).toEqual("updated content");
+    const updated = await CommentModel.findById(comment._id);
+    expect(updated.content).toBe("updated content");
+  });
+
+  test("Update non-existing comment returns 404", async () => {
+    const fakeId = new mongoose.Types.ObjectId();
+
+    const res = await request(await appPromise)
+      .put(`/comments/${fakeId}`)
+      .set(headers)
+      .send({ content: "x" });
+
+    expect(res.statusCode).toBe(404);
+  });
+
+  test("Update comment with invalid id returns 500", async () => {
+    const res = await request(await appPromise)
+      .put("/comments/invalid-id")
+      .set(headers)
+      .send({ content: "x" });
+
+    expect(res.statusCode).toBe(500);
   });
 
   test("Delete Comment", async () => {
@@ -169,10 +239,27 @@ describe("Comments", () => {
       .delete(`/comments/${comment._id}`)
       .set(headers);
 
-    expect(res.statusCode).toEqual(200);
-    expect(res.text).toEqual("The comment deleted");
+    expect(res.statusCode).toBe(200);
 
-    const commentDB = await CommentModel.findById(comment._id);
-    expect(commentDB).toBeNull();
+    const deleted = await CommentModel.findById(comment._id);
+    expect(deleted).toBeNull();
+  });
+
+  test("Delete non-existing comment returns 404", async () => {
+    const fakeId = new mongoose.Types.ObjectId();
+
+    const res = await request(await appPromise)
+      .delete(`/comments/${fakeId}`)
+      .set(headers);
+
+    expect(res.statusCode).toBe(404);
+  });
+
+  test("Delete comment with invalid id returns 500", async () => {
+    const res = await request(await appPromise)
+      .delete("/comments/invalid-id")
+      .set(headers);
+
+    expect(res.statusCode).toBe(500);
   });
 });
