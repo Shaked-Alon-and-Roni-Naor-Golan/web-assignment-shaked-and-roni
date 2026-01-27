@@ -11,8 +11,11 @@ import {
   describe,
   expect,
   test,
+  jest,
 } from "@jest/globals";
 import { UserModel } from "../models/user_model";
+import * as userService from "../services/user_service";
+import * as authController from "../controllers/auth_controller";
 
 const baseUser = {
   username: "auth",
@@ -44,6 +47,14 @@ const signNonExistingUserRefreshToken = () =>
     { expiresIn: process.env.REFRESH_TOKEN_EXPIRATION as string }
   );
 
+// ---------- tiny helpers for unit tests ----------
+const mockRes = () => {
+  const res: any = {};
+  res.status = jest.fn().mockReturnValue(res);
+  res.send = jest.fn().mockReturnValue(res);
+  return res;
+};
+
 beforeAll(async () => {
   await appPromise;
 });
@@ -54,10 +65,11 @@ afterAll(async () => {
 });
 
 afterEach(async () => {
+  jest.restoreAllMocks();
   await UserModel.deleteMany({ email: { $regex: /^auth_.*@auth\.test$/ } });
 });
 
-describe("Auth - Register", () => {
+describe("Auth - Register (integration)", () => {
   test("Register Successfully - returns 200 and stores hashed password", async () => {
     const user = uniqueUser();
 
@@ -100,7 +112,7 @@ describe("Auth - Register", () => {
   });
 });
 
-describe("Auth - Login", () => {
+describe("Auth - Login (integration)", () => {
   test("Login Successfully - returns access+refresh tokens; refresh token stored on user", async () => {
     const user = uniqueUser();
 
@@ -189,7 +201,7 @@ describe("Auth - Login", () => {
   });
 });
 
-describe("Auth - Logout", () => {
+describe("Auth - Logout (integration)", () => {
   let user: ReturnType<typeof uniqueUser>;
   let dbUserId: string;
   let validRefreshToken: string;
@@ -270,7 +282,7 @@ describe("Auth - Logout", () => {
   });
 });
 
-describe("Auth - Refresh Token", () => {
+describe("Auth - Refresh Token (integration)", () => {
   let user: ReturnType<typeof uniqueUser>;
   let dbUserId: string;
   let validRefreshToken: string;
@@ -370,5 +382,101 @@ describe("Auth - Refresh Token", () => {
     const updated = await UserModel.findById(dbUserId);
     expect(updated).not.toBeNull();
     expect((updated as any).refreshTokens || []).toHaveLength(0);
+  });
+});
+
+/**
+ * UNIT TESTS to cover controller catch/edge branches
+ * (These increase controller coverage without changing app behavior)
+ */
+describe("Auth controller - error branches (unit)", () => {
+  test("register: returns 500 when UserModel.findOne throws", async () => {
+    const user = uniqueUser();
+    const req: any = { body: user };
+    const res = mockRes();
+
+    jest.spyOn(UserModel, "findOne").mockRejectedValueOnce(new Error("db down"));
+
+    await authController.register(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.send).toHaveBeenCalled();
+  });
+
+  test("register: returns 500 when createNewUser throws", async () => {
+    const user = uniqueUser();
+    const req: any = { body: user };
+    const res = mockRes();
+
+    jest.spyOn(UserModel, "findOne").mockResolvedValueOnce(null as any);
+    jest
+      .spyOn(userService, "createNewUser")
+      .mockRejectedValueOnce(new Error("insert failed"));
+
+    await authController.register(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.send).toHaveBeenCalled();
+  });
+
+  test("logout: returns 403 when findUserById throws inside verify callback", async () => {
+    const userId = new mongoose.Types.ObjectId().toString();
+    const refreshToken = jwt.sign(
+      { _id: userId, username: "x" },
+      process.env.REFRESH_TOKEN_SECRET as string,
+      { expiresIn: process.env.REFRESH_TOKEN_EXPIRATION as string }
+    );
+
+    // Mock jwt.verify to behave as "valid token" and call callback with userInfo
+    const verifySpy = jest
+      .spyOn(jwt, "verify")
+      .mockImplementation((t: any, s: any, cb: any) => {
+        cb(null, { _id: userId });
+        return {} as any;
+      });
+
+    jest
+      .spyOn(userService, "findUserById")
+      .mockRejectedValueOnce(new Error("service error"));
+
+    const req: any = { headers: { authorization: "Bearer " + refreshToken } };
+    const res = mockRes();
+
+    await authController.logout(req, res, jest.fn() as any);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.send).toHaveBeenCalled();
+
+    verifySpy.mockRestore();
+  });
+
+  test("refreshToken: returns 403 when UserModel.findById throws inside verify callback", async () => {
+    const userId = new mongoose.Types.ObjectId().toString();
+    const refreshToken = jwt.sign(
+      { _id: userId, username: "x" },
+      process.env.REFRESH_TOKEN_SECRET as string,
+      { expiresIn: process.env.REFRESH_TOKEN_EXPIRATION as string }
+    );
+
+    const verifySpy = jest
+      .spyOn(jwt, "verify")
+      .mockImplementation((t: any, s: any, cb: any) => {
+        cb(null, { _id: userId });
+        return {} as any;
+      });
+
+    jest
+      .spyOn(UserModel, "findById")
+      .mockRejectedValueOnce(new Error("db find error"));
+
+    const req: any = { headers: { authorization: "Bearer " + refreshToken } };
+    const res = mockRes();
+
+    await authController.refreshToken(req, res, jest.fn() as any);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.send).toHaveBeenCalled();
+
+    verifySpy.mockRestore();
   });
 });

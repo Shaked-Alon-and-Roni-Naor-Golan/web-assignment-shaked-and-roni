@@ -1,3 +1,4 @@
+// tests/user.test.ts
 import appPromise from "../app";
 import mongoose from "mongoose";
 import request from "supertest";
@@ -26,7 +27,6 @@ const baseUser = {
 };
 
 const headers = { authorization: "" };
-
 const getAuthHeaders = () => headers;
 
 const uniqueUser = (overrides: Partial<typeof baseUser> = {}) => {
@@ -42,6 +42,7 @@ const uniqueUser = (overrides: Partial<typeof baseUser> = {}) => {
 beforeAll(async () => {
   await appPromise;
 
+  // ensure auth user exists once
   await UserModel.deleteMany({ email: authUser.email });
   await UserModel.create(authUser);
 
@@ -56,6 +57,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  // clean tests users
   await UserModel.deleteMany({
     email: { $regex: /^test_.*@test\.test$/ },
   });
@@ -65,6 +67,9 @@ afterAll(async () => {
 });
 
 afterEach(async () => {
+  // cleanup + ensure spies don’t leak across tests
+  jest.restoreAllMocks();
+
   await UserModel.deleteMany({
     email: { $regex: /^test_.*@test\.test$/ },
   });
@@ -73,10 +78,17 @@ afterEach(async () => {
 describe("Users API (protected)", () => {
   test("Should reject requests without Authorization header (middleware)", async () => {
     const res = await request(await appPromise).get("/users");
-
     expect(res.statusCode).toBe(401);
-
     expect(res.text).toContain("No token");
+  });
+
+  test("Should reject requests with invalid token (middleware)", async () => {
+    const res = await request(await appPromise)
+      .get("/users")
+      .set({ authorization: "Bearer invalid.token.here" });
+
+    expect(res.statusCode).toBe(403);
+    expect(res.text).toContain("Unauthorized");
   });
 
   test("GET /users returns an array (and includes created users)", async () => {
@@ -95,14 +107,38 @@ describe("Users API (protected)", () => {
     expect(emails).toEqual(expect.arrayContaining([u1.email, u2.email]));
   });
 
+  test("GET /users returns 500 when DB throws (covers catch)", async () => {
+    jest.spyOn(UserModel, "find").mockRejectedValueOnce(new Error("db fail"));
+
+    const res = await request(await appPromise)
+      .get("/users")
+      .set(getAuthHeaders());
+
+    expect(res.statusCode).toBe(500);
+    expect(res.text).toContain("db fail");
+  });
+
   test("GET /users/:id returns 404 when user does not exist", async () => {
     const nonExistingId = new mongoose.Types.ObjectId().toString();
+
     const res = await request(await appPromise)
       .get("/users/" + nonExistingId)
       .set(getAuthHeaders());
 
     expect(res.statusCode).toBe(404);
     expect(res.text).toContain("Cannot find specified post");
+  });
+
+  test("GET /users/:id returns 500 when DB throws (covers catch)", async () => {
+    const someId = new mongoose.Types.ObjectId().toString();
+    jest.spyOn(UserModel, "findById").mockRejectedValueOnce(new Error("db fail"));
+
+    const res = await request(await appPromise)
+      .get("/users/" + someId)
+      .set(getAuthHeaders());
+
+    expect(res.statusCode).toBe(500);
+    expect(res.text).toContain("db fail");
   });
 
   test("GET /users/:id returns user by id with correct fields", async () => {
@@ -117,7 +153,6 @@ describe("Users API (protected)", () => {
       .set(getAuthHeaders());
 
     expect(res.statusCode).toBe(200);
-
     expect(res.body).toEqual(
       expect.objectContaining({
         email: u.email,
@@ -169,6 +204,18 @@ describe("Users API (protected)", () => {
     expect(res.text).toBeTruthy();
   });
 
+  test("POST /users returns 500 when DB throws (covers catch)", async () => {
+    jest.spyOn(UserModel, "create").mockRejectedValueOnce(new Error("db fail"));
+
+    const res = await request(await appPromise)
+      .post("/users")
+      .set(getAuthHeaders())
+      .send(uniqueUser());
+
+    expect(res.statusCode).toBe(500);
+    expect(res.text).toContain("db fail");
+  });
+
   test("PUT /users/:id updates user and returns 201; DB reflects changes", async () => {
     const u = uniqueUser();
     await UserModel.create(u);
@@ -192,6 +239,7 @@ describe("Users API (protected)", () => {
 
   test("PUT /users/:id returns 404 when updating a non-existing user", async () => {
     const nonExistingId = new mongoose.Types.ObjectId().toString();
+
     const res = await request(await appPromise)
       .put("/users/" + nonExistingId)
       .set(getAuthHeaders())
@@ -199,6 +247,21 @@ describe("Users API (protected)", () => {
 
     expect(res.statusCode).toBe(404);
     expect(res.text).toContain("Cannot find specified post");
+  });
+
+  test("PUT /users/:id returns 500 when DB throws (covers catch)", async () => {
+    const someId = new mongoose.Types.ObjectId().toString();
+    jest
+      .spyOn(UserModel, "updateOne")
+      .mockRejectedValueOnce(new Error("db fail"));
+
+    const res = await request(await appPromise)
+      .put("/users/" + someId)
+      .set(getAuthHeaders())
+      .send({ username: "boom" });
+
+    expect(res.statusCode).toBe(500);
+    expect(res.text).toContain("db fail");
   });
 
   test("DELETE /users/:id deletes user and returns 201; user is removed from DB", async () => {
@@ -220,12 +283,27 @@ describe("Users API (protected)", () => {
 
   test("DELETE /users/:id returns 404 when deleting a non-existing user", async () => {
     const nonExistingId = new mongoose.Types.ObjectId().toString();
+
     const res = await request(await appPromise)
       .delete("/users/" + nonExistingId)
       .set(getAuthHeaders());
 
     expect(res.statusCode).toBe(404);
     expect(res.text).toContain("Cannot find specified post");
+  });
+
+  test("DELETE /users/:id returns 500 when DB throws (covers catch)", async () => {
+    const someId = new mongoose.Types.ObjectId().toString();
+    jest
+      .spyOn(UserModel, "deleteOne")
+      .mockRejectedValueOnce(new Error("db fail"));
+
+    const res = await request(await appPromise)
+      .delete("/users/" + someId)
+      .set(getAuthHeaders());
+
+    expect(res.statusCode).toBe(500);
+    expect(res.text).toContain("db fail");
   });
 
   test("Create + Update + Get flows together (smoke/integration)", async () => {
