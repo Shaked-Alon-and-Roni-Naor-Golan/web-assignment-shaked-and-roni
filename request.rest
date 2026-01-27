@@ -1,7 +1,8 @@
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTc0ZTU2NzBiMDg2ZTNjM2RkZjYyODQiLCJpYXQiOjE3NjkyNjg1ODksImV4cCI6MTc2OTI2ODg4OX0.XAZPGJsvljnvaC0VO02j_zPTZk90tThC-NXfMxrI3T8
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTc0ZTU2NzBiMDg2ZTNjM2RkZjYyODQiLCJpYXQiOjE3Njk0MzcwNjAsImV4cCI6MTc2OTQzNzM2MH0.spkCc7Lw6XBVwdOfheDpzQ7_iT1RRhFwIqraP8fZVAI
 
 
-@baseUrl = http://localhost:3000
+
+@baseUrl = http://localhost:4000
 
 ###Authentication###
 
