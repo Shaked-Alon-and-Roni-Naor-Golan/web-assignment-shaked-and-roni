@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import appPromise from "../app";
+import appPromise from "../src/app";
 import mongoose from "mongoose";
 import request from "supertest";
 import {
@@ -13,9 +13,9 @@ import {
   test,
   jest,
 } from "@jest/globals";
-import { UserModel } from "../models/user_model";
-import * as userService from "../services/user_service";
-import * as authController from "../controllers/auth_controller";
+import { UserModel } from "../src/models/user_model";
+import * as userService from "../src/services/user_service";
+import * as authController from "../src/controllers/auth_controller";
 
 const baseUser = {
   username: "auth",

@@ -4,9 +4,9 @@ import { User } from "../dtos/user";
 import { Request, RequestHandler, Response } from "express";
 import { UserModel } from "../models/user_model";
 import { createNewUser, findUserById } from "../services/user_service";
-import { generateAccessToken } from "../utils/auth/generate_access_token";
-import { generateRefreshToken } from "../utils/auth/generate_refresh_token";
-import { userToTokenData } from "../utils/auth/user_to_token_data";
+import { generateAccessToken } from "../../utils/auth/generate_access_token";
+import { generateRefreshToken } from "../../utils/auth/generate_refresh_token";
+import { userToTokenData } from "../../utils/auth/user_to_token_data";
 
 export const register = async (req: Request, res: Response) => {
   const user: User = req.body;

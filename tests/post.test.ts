@@ -1,4 +1,4 @@
-import appPromise from "../app";
+import appPromise from "../src/app";
 import mongoose from "mongoose";
 import request from "supertest";
 import { generateAccessToken } from "../utils/auth/generate_access_token";
@@ -10,9 +10,9 @@ import {
   expect,
   test,
 } from "@jest/globals";
-import { UserModel } from "../models/user_model";
-import { PostModel } from "../models/posts_model";
-import * as postsModel from "../models/posts_model";
+import { UserModel } from "../src/models/user_model";
+import { PostModel } from "../src/models/posts_model";
+import * as postsModel from "../src/models/posts_model";
 import { userToTokenData } from "../utils/auth/user_to_token_data";
 
 const user = {

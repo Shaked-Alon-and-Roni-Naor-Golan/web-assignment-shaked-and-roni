@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { User } from "../../dtos/user";
+import { User } from "../../src/dtos/user";
 
 export const generateRefreshToken = (
   user: Pick<User, "_id">,
