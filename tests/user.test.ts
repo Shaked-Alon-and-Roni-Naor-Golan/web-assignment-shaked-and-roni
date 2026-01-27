@@ -1,4 +1,3 @@
-// tests/user.test.ts
 import appPromise from "../app";
 import mongoose from "mongoose";
 import request from "supertest";
@@ -42,7 +41,6 @@ const uniqueUser = (overrides: Partial<typeof baseUser> = {}) => {
 beforeAll(async () => {
   await appPromise;
 
-  // ensure auth user exists once
   await UserModel.deleteMany({ email: authUser.email });
   await UserModel.create(authUser);
 
@@ -57,7 +55,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  // clean tests users
   await UserModel.deleteMany({
     email: { $regex: /^test_.*@test\.test$/ },
   });
@@ -67,7 +64,6 @@ afterAll(async () => {
 });
 
 afterEach(async () => {
-  // cleanup + ensure spies don’t leak across tests
   jest.restoreAllMocks();
 
   await UserModel.deleteMany({

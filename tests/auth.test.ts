@@ -47,7 +47,6 @@ const signNonExistingUserRefreshToken = () =>
     { expiresIn: process.env.REFRESH_TOKEN_EXPIRATION as string }
   );
 
-// ---------- tiny helpers for unit tests ----------
 const mockRes = () => {
   const res: any = {};
   res.status = jest.fn().mockReturnValue(res);
@@ -427,7 +426,6 @@ describe("Auth controller - error branches (unit)", () => {
       { expiresIn: process.env.REFRESH_TOKEN_EXPIRATION as string }
     );
 
-    // Mock jwt.verify to behave as "valid token" and call callback with userInfo
     const verifySpy = jest
       .spyOn(jwt, "verify")
       .mockImplementation((t: any, s: any, cb: any) => {
