@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { NextFunction, Response } from "express";
 
-const ALLOWED_PATHS = ["auth"];
+const ALLOWED_PATHS = ["auth", "docs", "api-docs"];
 
 export const authenticateToken = async (
   req: any,
