@@ -1,5 +1,5 @@
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTc0Zjk4Y2MxYTQ4ODkzYWE0YjU3YTUiLCJ1c2VybmFtZSI6InJvbmluYWdvIiwiaWF0IjoxNzY5MjczNzQ5LCJleHAiOjE3NjkyODgxNDl9.Ty5kgq_W1Z_3FUQUUBlvY6I6TAjsbTnHXDov9oL0etA
-@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTc0Zjk4Y2MxYTQ4ODkzYWE0YjU3YTUiLCJ1c2VybmFtZSI6InJvbmluYWdvIiwiaWF0IjoxNzY5MjczNzQ5LCJleHAiOjE3Njk1MzI5NDl9.z-pGXXeZlmt0oy8Y-YtyFlDa8R6JBtjcuyz0iUF6u0E
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTc5MmZmYjQ0YjFiNGRiYzFlZDk2NmYiLCJ1c2VybmFtZSI6InJvbmluYWdvIiwiaWF0IjoxNzY5NTQ5ODg2LCJleHAiOjE3Njk1NTAwMDZ9.qhSQDm1GqwfBNEq8_Qsr2sTK_D0XdfHWE9nCBx_Gt5A
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTc5MmZmYjQ0YjFiNGRiYzFlZDk2NmYiLCJ1c2VybmFtZSI6InJvbmluYWdvIiwiaWF0IjoxNzY5NTQ5ODg2LCJleHAiOjE3Njk4MDkwODZ9.siDKnFA8MXklTEQ06s_yM7UQXT1hbGAvroyJwprgt40
 @baseUrl = http://localhost:3000
 
 ###Authentication###
@@ -41,7 +41,7 @@ GET {{baseUrl}}/users
 Authorization: Bearer {{accessToken}}
 
 ###  GET a user by ID
-GET {{baseUrl}}/users/6974c3407b9456ac6fc07288
+GET {{baseUrl}}/users/69792f5e44b1b4dbc1ed9651
 Authorization: Bearer {{accessToken}}
 
 ### POST a new user
