@@ -1,6 +1,6 @@
 # web-assignment-shaked-and-roni
 
-This is a server-side application that exposes a RESTful API for managing **Posts** and **Comments**.  
+This is a server-side application that exposes a RESTful API for managing Posts and Comments. 
 The API supports full CRUD operations (Create, Read, Update, Delete).
 
 ---
@@ -26,8 +26,14 @@ The API supports full CRUD operations (Create, Read, Update, Delete).
   - Get all users
   - Get a single user by ID
   - Create a new user
-  - Delete a user
   - Update a user
+  - Delete a user
+
+- Auth
+  - Register a new user
+  - Login to receive Access and Refresh tokens
+  - Logout and invalidate Refresh token
+
 
 Note: Each user can create posts and add comments to specific posts.
 
@@ -38,5 +44,15 @@ Note: Each user can create posts and add comments to specific posts.
 # Install dependencies
 npm install
 
-# Start the server
+# Start the server (Development)
 npm run dev
+
+# Run Integration Tests
+npm test
+
+---
+
+## API Documentation
+
+Interactive API documentation is available via Swagger at:
+http://localhost:4000/api-docs
