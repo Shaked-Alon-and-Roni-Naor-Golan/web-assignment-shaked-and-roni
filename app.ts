@@ -9,52 +9,43 @@ const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 
 dotenv.config();
-const app = express();
 
 const specs = swaggerJsdoc(swaggerOptions);
-app.use(
-  "/docs",
-  swaggerUi.serve,
-  swaggerUi.setup(specs, { explorer: true })
-);
-
-mongoose.connect(process.env.DB_CONNECT);
-const db = mongoose.connection;
-db.on("error", (error) => console.error(error));
-db.once("open", () => console.log("Connected to database successfully"));
 
 const appPromise: Promise<any> = new Promise((resolve, reject) => {
   mongoose
     .connect(process.env.DB_CONNECT)
     .then(() => {
       console.log("Connected to database successfully");
+
       const app = express();
+
       app.use(
         "/api-docs",
         swaggerUi.serve,
         swaggerUi.setup(specs, { explorer: true })
       );
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+      app.use(bodyParser.json());
+      app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(authenticateToken);
+      app.use(authenticateToken);
 
-const authRouter = require("./routes/auth_route");
-app.use("/auth", authRouter);
+      const authRouter = require("./routes/auth_route");
+      app.use("/auth", authRouter);
 
-const postsRouter = require("./routes/posts_route");
-app.use("/posts", postsRouter);
+      const postsRouter = require("./routes/posts_route");
+      app.use("/posts", postsRouter);
 
-const commentsRouter = require("./routes/comments_route");
-app.use("/comments", commentsRouter);
+      const commentsRouter = require("./routes/comments_route");
+      app.use("/comments", commentsRouter);
 
-const usersRouter = require("./routes/users_route");
-app.use("/users", usersRouter);
+      const usersRouter = require("./routes/users_route");
+      app.use("/users", usersRouter);
 
       resolve(app);
     })
-    .catch((error) => {
+    .catch((error: any) => {
       console.error("Failed to connect to database:", error);
       reject(error);
     });

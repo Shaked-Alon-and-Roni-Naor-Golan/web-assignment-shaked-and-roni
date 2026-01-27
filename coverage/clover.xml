@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1769551443646" clover="3.2.0">
-  <project timestamp="1769551443646" name="All files">
-    <metrics statements="317" coveredstatements="315" conditionals="58" coveredconditionals="57" methods="36" coveredmethods="34" elements="411" coveredelements="406" complexity="0" loc="317" ncloc="317" packages="8" files="18" classes="18"/>
+<coverage generated="1769553447672" clover="3.2.0">
+  <project timestamp="1769553447672" name="All files">
+    <metrics statements="311" coveredstatements="309" conditionals="58" coveredconditionals="57" methods="34" coveredmethods="33" elements="403" coveredelements="399" complexity="0" loc="311" ncloc="311" packages="8" files="18" classes="18"/>
     <package name="web-assignment-shaked-and-roni">
-      <metrics statements="36" coveredstatements="34" conditionals="0" coveredconditionals="0" methods="5" coveredmethods="3"/>
+      <metrics statements="30" coveredstatements="28" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="2"/>
       <file name="app.ts" path="/Users/roni/Documents/WebProjeccts/roni-and-shaked/web-assignment-shaked-and-roni/app.ts">
-        <metrics statements="36" coveredstatements="34" conditionals="0" coveredconditionals="0" methods="5" coveredmethods="3"/>
+        <metrics statements="30" coveredstatements="28" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="2"/>
         <line num="1" count="4" type="stmt"/>
         <line num="2" count="4" type="stmt"/>
         <line num="4" count="4" type="stmt"/>
@@ -15,33 +15,27 @@
         <line num="8" count="4" type="stmt"/>
         <line num="9" count="4" type="stmt"/>
         <line num="11" count="4" type="stmt"/>
-        <line num="12" count="4" type="stmt"/>
-        <line num="14" count="4" type="stmt"/>
+        <line num="13" count="4" type="stmt"/>
         <line num="15" count="4" type="stmt"/>
+        <line num="16" count="4" type="stmt"/>
+        <line num="19" count="4" type="stmt"/>
         <line num="21" count="4" type="stmt"/>
-        <line num="22" count="4" type="stmt"/>
         <line num="23" count="4" type="stmt"/>
-        <line num="24" count="4" type="stmt"/>
-        <line num="26" count="4" type="stmt"/>
-        <line num="27" count="4" type="stmt"/>
+        <line num="29" count="4" type="stmt"/>
         <line num="30" count="4" type="stmt"/>
-        <line num="31" count="4" type="stmt"/>
         <line num="32" count="4" type="stmt"/>
+        <line num="34" count="4" type="stmt"/>
+        <line num="35" count="4" type="stmt"/>
+        <line num="37" count="4" type="stmt"/>
         <line num="38" count="4" type="stmt"/>
-        <line num="39" count="4" type="stmt"/>
+        <line num="40" count="4" type="stmt"/>
         <line num="41" count="4" type="stmt"/>
         <line num="43" count="4" type="stmt"/>
         <line num="44" count="4" type="stmt"/>
         <line num="46" count="4" type="stmt"/>
-        <line num="47" count="4" type="stmt"/>
-        <line num="49" count="4" type="stmt"/>
-        <line num="50" count="4" type="stmt"/>
-        <line num="52" count="4" type="stmt"/>
-        <line num="53" count="4" type="stmt"/>
-        <line num="55" count="4" type="stmt"/>
-        <line num="58" count="0" type="stmt"/>
-        <line num="59" count="0" type="stmt"/>
-        <line num="63" count="4" type="stmt"/>
+        <line num="49" count="0" type="stmt"/>
+        <line num="50" count="0" type="stmt"/>
+        <line num="54" count="4" type="stmt"/>
       </file>
     </package>
     <package name="web-assignment-shaked-and-roni.controllers">
@@ -272,7 +266,7 @@
         <line num="1" count="4" type="stmt"/>
         <line num="4" count="4" type="stmt"/>
         <line num="6" count="4" type="stmt"/>
-        <line num="11" count="67" type="cond" truecount="2" falsecount="0"/>
+        <line num="11" count="165" type="cond" truecount="2" falsecount="0"/>
         <line num="12" count="18" type="stmt"/>
         <line num="14" count="49" type="stmt"/>
         <line num="15" count="49" type="cond" truecount="2" falsecount="0"/>
