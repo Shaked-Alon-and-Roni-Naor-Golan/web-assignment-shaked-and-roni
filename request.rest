@@ -1,77 +1,153 @@
+<<<<<<< Updated upstream
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTc5M2U0NjJmOWY0ZmRmZWM2MTY5YzIiLCJ1c2VybmFtZSI6InJvbmluYWdvIiwiaWF0IjoxNzY5NTUzNDgwLCJleHAiOjE3Njk1Njc4ODB9.niPjaeyvppIHMGdlOq-7F87m_eWodpmMebpCJzfsx9k
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTc5M2U0NjJmOWY0ZmRmZWM2MTY5YzIiLCJ1c2VybmFtZSI6InJvbmluYWdvIiwiaWF0IjoxNzY5NTUzNDgwLCJleHAiOjE3Njk4MTI2ODB9.Fcircffz29Zocb3pMYK6nLav8J6C_YJ8rhAzMgI5TDs
+=======
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTc5M2UwMzMwYjljZDM1N2EzY2I1NmEiLCJ1c2VybmFtZSI6InJvbmluYWdvIiwiaWF0IjoxNzY5NTUzNDIxLCJleHAiOjE3Njk1Njc4MjF9.P-GXCcoNQ7RZokOWzXCN7AwPucjkmxkCQP1RSfC4xjQ
+@refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTc5M2UwMzMwYjljZDM1N2EzY2I1NmEiLCJ1c2VybmFtZSI6InJvbmluYWdvIiwiaWF0IjoxNzY5NTUzNDIxLCJleHAiOjE3Njk4MTI2MjF9.wgnS-rVPLnL9yybe7Q1uumvUpOOTLqdqCQfFl6CeqF4
+>>>>>>> Stashed changes
+@baseUrl = http://localhost:4000
 
-###Posts###
+###Authentication###
 
-GET http://localhost:3000/posts
-
-###
-
-
-POST http://localhost:3000/posts
+### Register as a new user
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-    "title": "Beautiful Post",
-    "sender": "677ff5652758ff9eb4710bbb",
+    "username": "roninago",
+    "password": "12345",
+    "email": "roni123@gmail.com"
+}
+
+### Login as an existing user and get a token
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "password": "12345",
+    "email": "roni123@gmail.com"
+}
+
+### Refresh the authentication token
+POST {{baseUrl}}/auth/refresh-token
+Content-Type: application/json
+Authorization: Bearer {{refreshToken}}
+
+### Logout from the logged in user
+POST {{baseUrl}}/auth/logout
+Content-Type: application/json
+Authorization: Bearer {{refreshToken}}
+
+
+###Users###
+
+### GET all users
+GET {{baseUrl}}/users
+Authorization: Bearer {{accessToken}}
+
+###  GET a user by ID
+GET {{baseUrl}}/users/69793e462f9f4fdfec6169c2
+Authorization: Bearer {{accessToken}}
+
+### POST a new user
+POST {{baseUrl}}/users
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+    "username": "Shani",
+    "password": "123alon",
+    "email": "shanialon@gmail.com"
+}
+
+### UPDATE a user by ID
+PUT {{baseUrl}}/users/6974c64ece0359118343d4a3
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+    "username": "Jade",
+    "password": "alon",
+    "email": "updated@gmail.com"
+}
+
+
+
+###Posts###
+
+### GET all posts
+GET {{baseUrl}}/posts
+Authorization: Bearer {{accessToken}}
+
+### POST a new post
+POST {{baseUrl}}/posts
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+    "title": "Jade Post",
+    "sender": "6974c3407b9456ac6fc07288",
     "content": "I am happy"
 }
 
 
-###
+### GET a post by ID
+GET {{baseUrl}}/posts/6974c4dd7b9456ac6fc0729b
+Authorization: Bearer {{accessToken}}
 
-GET http://localhost:3000/posts/697394c23826c8eaa931bd2a
 
+### GET posts by sender ID
+GET {{baseUrl}}/posts?postSender=6974c3407b9456ac6fc07288
+Authorization: Bearer {{accessToken}}
 
-###
-
-GET http://localhost:3000/posts?postSender=677ff5652758ff9eb4710bbb
-
-###
-
-PUT http://localhost:3000/posts/697394c23826c8eaa931bd2a
+### UPDATE a post by ID
+PUT {{baseUrl}}/posts/6974c607ce0359118343d490
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
-    "title": "Updated g",
-    "sender": "677ff5652758ff9eb4710a1c",
-    "content": "Very job"
+    "title": "Updated title",
+    "content": "Updated content"
 }
-
 
 
 
 ###Comments###
 
-GET http://localhost:3000/comments
+### GET all comments
+GET {{baseUrl}}/comments
+Authorization: Bearer {{accessToken}}
 
-###
-
-POST http://localhost:3000/comments
+### POST a new comment
+POST {{baseUrl}}/comments
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
-    "userId": "677ff5652758ff9eb4710a1c",
-    "content": "good job!",
-    "postId": "697394c23826c8eaa931bd2a"
+    "userId": "6974c64ece0359118343d4a3",
+    "content": "another post!",
+    "postId": "6974c4dd7b9456ac6fc0729b"
 }
 
-###
-
-PUT http://localhost:3000/comments/697395d63826c8eaa931bd2c
+### UPDATE a comment by ID
+PUT {{baseUrl}}/comments/6974c744ce0359118343d4ab
+Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
 {
     "content": "content updated"
 }
 
+### GET a comment by ID
+GET {{baseUrl}}/comments/6974c744ce0359118343d4ab
+Authorization: Bearer {{accessToken}}
+
+###  DELETE a comment by ID
+DELETE {{baseUrl}}/comments/6974c744ce0359118343d4ab
+Authorization: Bearer {{accessToken}}
+
+###  GET comments by post ID
+GET {{baseUrl}}/comments/post/6974c4dd7b9456ac6fc0729b
+Authorization: Bearer {{accessToken}}
+
 ###
-
-GET http://localhost:3000/comments/697395d63826c8eaa931bd2c
-
-###
-
-DELETE http://localhost:3000/comments/697395d63826c8eaa931bd2c
-
-###
-
-GET http://localhost:3000/comments/post/697394c23826c8eaa931bd2a
-
