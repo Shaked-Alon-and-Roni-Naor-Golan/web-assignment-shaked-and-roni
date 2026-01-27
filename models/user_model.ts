@@ -14,6 +14,9 @@ const usersSchema = new mongoose.Schema<User>({
     type: String,
     required: true,
   },
+  refreshTokens: {
+    type: [String],
+  }
 });
 
 export const UserModel = mongoose.model<User>("users", usersSchema);
