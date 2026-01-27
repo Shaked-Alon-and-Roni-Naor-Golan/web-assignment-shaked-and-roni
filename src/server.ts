@@ -1,4 +1,4 @@
-import appPromise from "./app";
+import appPromise from "../src/app";
 
 const port = process.env.PORT || 4000;
 

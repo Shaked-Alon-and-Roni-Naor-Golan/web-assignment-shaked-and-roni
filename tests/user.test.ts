@@ -1,7 +1,7 @@
-import appPromise from "../app";
+import appPromise from "../src/app";
 import mongoose from "mongoose";
 import request from "supertest";
-import { UserModel } from "../models/user_model";
+import { UserModel } from "../src/models/user_model";
 import { generateAccessToken } from "../utils/auth/generate_access_token";
 import {
   afterEach,
