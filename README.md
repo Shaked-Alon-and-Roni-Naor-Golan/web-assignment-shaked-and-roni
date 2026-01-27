@@ -1,6 +1,6 @@
 # web-assignment-shaked-and-roni
 
-This is a server-side application that exposes a RESTful API for managing Posts and Comments. 
+This is a server-side application that exposes a RESTful API for managing Posts and Comments of Users. 
 The API supports full CRUD operations (Create, Read, Update, Delete).
 
 ---
