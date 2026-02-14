@@ -14,7 +14,7 @@ import {
   jest,
 } from "@jest/globals";
 import { UserModel } from "../src/models/user_model";
-import * as userService from "../src/services/user_service";
+import * as userService from "../server/services/user_service";
 import * as authController from "../src/controllers/auth_controller";
 
 const baseUser = {

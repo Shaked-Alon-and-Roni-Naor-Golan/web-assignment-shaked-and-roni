@@ -3,7 +3,7 @@ import { User } from "../dtos/user";
 import { Request, Response } from "express";
 import { deleteFile, uploadFile } from "../utils/multer";
 import { UserModel } from "../models/user_model";
-import { createNewUser, findUserById } from "../services/user_service";
+import { createNewUser, findUserById } from "../../services/user_service";
 
 const getAllUsers = async (req: Request, res: Response) => {
   try {

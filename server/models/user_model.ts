@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
-import { User } from "../../server/dtos/user";
+import { User } from "../dtos/user";
 
 const usersSchema = new mongoose.Schema<User>({
   username: {
     type: String,
     required: true,
+    unique: true,
   },
   password: {
     type: String,
@@ -13,10 +14,12 @@ const usersSchema = new mongoose.Schema<User>({
   email: {
     type: String,
     required: true,
+    unique: true,
   },
-  refreshTokens: {
+  photo: { type: String },
+  tokens: {
     type: [String],
-  }
+  },
 });
 
 export const UserModel = mongoose.model<User>("users", usersSchema);

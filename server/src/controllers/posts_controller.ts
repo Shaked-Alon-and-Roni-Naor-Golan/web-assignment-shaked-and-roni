@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Post } from "../../dtos/post";
+import { Post } from "../dtos/post";
 import { PostModel } from "../../src/models/posts_model";
 
 const getAllPosts = async (req: Request, res: Response) => {

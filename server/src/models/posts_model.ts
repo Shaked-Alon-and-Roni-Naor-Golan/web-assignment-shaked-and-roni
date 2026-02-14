@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Post } from "../../server/dtos/post";
+import { Post } from "../dtos/post";
 
 const postSchema = new mongoose.Schema<Post>({
   title: {

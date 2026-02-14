@@ -1,8 +1,9 @@
 import jwt from "jsonwebtoken";
-import { User } from "../../server/src/dtos/user";
+// import { User } from "../../server/src/dtos/user";
+import { JwtInfo } from "./auth";
 
 export const generateAccessToken = (
-  user: Pick<User, "_id">,
+  user: JwtInfo,
   accessToken: string,
   expiryTime: string
 ) => {

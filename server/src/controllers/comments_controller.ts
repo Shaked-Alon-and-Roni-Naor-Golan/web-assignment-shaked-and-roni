@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { CommentModel } from "../../src/models/comments_model";
-import { Comment } from "../../dtos/comment";
+import { Comment } from "../dtos/comment";
 
 const getAllComments = async (req: Request, res: Response) => {
   const userIdRaw = req.query.userId;

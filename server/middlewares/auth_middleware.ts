@@ -23,10 +23,8 @@ export const authenticateToken = async (
       process.env.ACCESS_TOKEN_SECRET,
       async (err, user) => {
         if (err) {
-          console.log("Unauthorized");
           res.status(403).send("Unauthorized");
         } else {
-          console.log(user);
           req.user = user;
           next();
         }

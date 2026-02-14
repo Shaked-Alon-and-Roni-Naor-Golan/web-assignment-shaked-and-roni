@@ -1,4 +1,4 @@
-import { User } from "../../server/dtos/user";
+import { User } from "../../server/src/dtos/user";
 
 export type UserTokenData = Pick<User, "_id" | "username">;
 

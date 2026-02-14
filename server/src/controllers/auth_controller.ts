@@ -5,7 +5,7 @@ import { Request, Response } from "express";
 import { deleteFile, uploadFile } from "../utils/multer";
 import { UserModel } from "../models/user_model";
 import { OAuth2Client } from "google-auth-library";
-import { createNewUser } from "../services/user_service";
+import { createNewUser } from "../../services/user_service";
 import { generateAndSaveTokens } from "../utils/auth/auth";
 
 export const register = async (req: Request, res: Response) => {

@@ -1,4 +1,4 @@
-import { swaggerOptions } from "./swagger/swagger_setup";
+import { swaggerOptions } from "./src/swagger/swagger_setup";
 import { authenticateToken } from "./middlewares/auth_middleware";
 
 const dotenv = require("dotenv");
