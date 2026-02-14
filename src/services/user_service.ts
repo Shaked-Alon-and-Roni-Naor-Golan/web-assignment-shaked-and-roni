@@ -1,4 +1,4 @@
-import { User } from "../dtos/user";
+import { User } from "../../server/dtos/user";
 import { UserModel } from "../models/user_model";
 
 export const findUserById = async (userId: string) => {

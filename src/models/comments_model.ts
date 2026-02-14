@@ -1,4 +1,4 @@
-import { Comment } from "../dtos/comment";
+import { Comment } from "../../server/dtos/comment";
 import mongoose from "mongoose";
 
 const commentsSchema = new mongoose.Schema<Comment>({

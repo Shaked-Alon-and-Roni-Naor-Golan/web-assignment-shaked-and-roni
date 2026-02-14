@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { CommentModel } from "../models/comments_model";
+import { CommentModel } from "../../src/models/comments_model";
 import { Comment } from "../dtos/comment";
 
 const getAllComments = async (req: Request, res: Response) => {

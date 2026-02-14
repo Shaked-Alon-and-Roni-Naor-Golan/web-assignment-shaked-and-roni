@@ -1,4 +1,4 @@
-export type RefreshToken = {
-    _id: string;
-    token: string;
-  };
+// export type RefreshToken = {
+//     _id: string;
+//     token: string;
+//   };

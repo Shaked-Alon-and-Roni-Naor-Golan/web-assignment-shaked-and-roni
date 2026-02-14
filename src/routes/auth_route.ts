@@ -1,14 +1,14 @@
-import * as express from "express";
-import { login, register, logout, refreshToken } from "../controllers/auth_controller";
+// import * as express from "express";
+// import { login, register, logout, refreshToken } from "../controllers/auth_controller";
 
-const router = express.Router();
+// const router = express.Router();
 
-router.post("/login", login);
+// router.post("/login", login);
 
-router.post("/logout", logout);
+// router.post("/logout", logout);
 
-router.post("/register", register);
+// router.post("/register", register);
 
-router.post("/refresh-token", refreshToken) 
+// router.post("/refresh-token", refreshToken) 
 
-module.exports = router;
+// module.exports = router;

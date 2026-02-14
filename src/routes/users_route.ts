@@ -1,22 +1,22 @@
-import * as express from "express";
-import {
-  getUserById,
-  getAllUsers,
-  deleteUserById,
-  createUser,
-  updateUser,
-} from "../controllers/users_controller";
+// import * as express from "express";
+// import {
+//   getUserById,
+//   getAllUsers,
+//   deleteUserById,
+//   createUser,
+//   updateUser,
+// } from "../controllers/users_controller";
 
-const router = express.Router();
+// const router = express.Router();
 
-router.get("/", getAllUsers);
+// router.get("/", getAllUsers);
 
-router.get("/:userId", getUserById);
+// router.get("/:userId", getUserById);
 
-router.post("/", createUser);
+// router.post("/", createUser);
 
-router.put("/:userId", updateUser);
+// router.put("/:userId", updateUser);
 
-router.delete("/:userId", deleteUserById);
+// router.delete("/:userId", deleteUserById);
 
-module.exports = router;
+// module.exports = router;

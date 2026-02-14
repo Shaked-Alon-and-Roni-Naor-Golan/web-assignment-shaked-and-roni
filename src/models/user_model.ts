@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { User } from "../dtos/user";
+import { User } from "../../server/dtos/user";
 
 const usersSchema = new mongoose.Schema<User>({
   username: {

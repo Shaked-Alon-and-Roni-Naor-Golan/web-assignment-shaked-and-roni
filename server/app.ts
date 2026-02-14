@@ -2,7 +2,9 @@ import { swaggerOptions } from "./swagger/swagger_setup";
 import { authenticateToken } from "./middlewares/auth_middleware";
 
 const dotenv = require("dotenv");
+const morgan = require("morgan");
 const express = require("express");
+const crossOrigin = require("cors");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const swaggerJsdoc = require("swagger-jsdoc");
@@ -19,6 +21,10 @@ const appPromise: Promise<any> = new Promise((resolve, reject) => {
       console.log("Connected to database successfully");
 
       const app = express();
+
+      app.use(crossOrigin({ origin: "*" }));
+      app.use(morgan("dev"));
+      app.use(express.static("public"));
 
       app.use(
         "/api-docs",
@@ -43,12 +49,17 @@ const appPromise: Promise<any> = new Promise((resolve, reject) => {
       const usersRouter = require("./routes/users_route");
       app.use("/users", usersRouter);
 
+      const aiRouter = require("./routes/ai_route");
+      app.use("/ai", aiRouter);
+
+      app.use((error, req, res) => {
+        console.error(error.stack);
+        res.status(500).send("Something broke!");
+      });
+
       resolve(app);
     })
-    .catch((error: any) => {
-      console.error("Failed to connect to database:", error);
-      reject(error);
-    });
+    .catch((error) => console.error(error));
 });
 
 export default appPromise;

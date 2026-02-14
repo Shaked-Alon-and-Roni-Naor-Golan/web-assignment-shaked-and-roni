@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Post } from "../dtos/post";
-import { PostModel } from "../models/posts_model";
+import { PostModel } from "../../src/models/posts_model";
 
 const getAllPosts = async (req: Request, res: Response) => {
   const postSenderRaw = req.query.postSender;
