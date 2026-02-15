@@ -1,12 +1,11 @@
-const express = require("express");
+import { Router } from "express";
+const router = Router();
 import {
     getAllPosts,
     getPostById,
     createPost,
     updatePost,
   } from "../controllers/posts_controller";
-
-const router = express.Router();
 
 router.get("/", getAllPosts);
 

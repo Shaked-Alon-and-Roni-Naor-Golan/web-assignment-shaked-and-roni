@@ -1,11 +1,9 @@
-import appPromise from "../src/app";
+import appPromise from "./src/app";
 
-const port = process.env.PORT || 4000;
-
-appPromise.then((app) => {
-  app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
-  });
-}).catch(err => {
-    console.error("Failed to start server:", err);
-});
+appPromise.then((app) =>
+  app.listen(process.env.PORT, () => {
+    console.log(
+      `Example app listening at http://localhost:${process.env.PORT}`
+    );
+  })
+);

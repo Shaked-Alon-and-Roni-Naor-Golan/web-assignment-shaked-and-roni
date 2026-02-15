@@ -3,7 +3,7 @@ import { User } from "../dtos/user";
 import { Request, Response } from "express";
 import { deleteFile, uploadFile } from "../utils/multer";
 import { UserModel } from "../models/user_model";
-import { createNewUser, findUserById } from "../../services/user_service";
+import { createNewUser, findUserById } from "../services/user_service";
 
 const getAllUsers = async (req: Request, res: Response) => {
   try {
@@ -39,7 +39,7 @@ const createUser = async (req: Request, res: Response) => {
   }
 };
 
-const updateUser = async (req: Request, res: Response) => {
+const updateUser = async (req: Request, res: Response): Promise<any> => {
   try {
     await uploadFile(req, res);
     const username: string = req.body.username;

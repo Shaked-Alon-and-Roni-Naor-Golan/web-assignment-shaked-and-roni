@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken";
-// import { User } from "../../server/src/dtos/user";
 import { JwtInfo } from "./auth";
 
 export const generateAccessToken = (

@@ -1,5 +1,5 @@
-import { swaggerOptions } from "./src/swagger/swagger_setup";
 import { authenticateToken } from "./middlewares/auth_middleware";
+import { swaggerOptions } from "./swagger/swagger_setup";
 
 const dotenv = require("dotenv");
 const morgan = require("morgan");
@@ -11,7 +11,6 @@ const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 
 dotenv.config();
-
 const specs = swaggerJsdoc(swaggerOptions);
 
 const appPromise: Promise<any> = new Promise((resolve, reject) => {
@@ -19,7 +18,6 @@ const appPromise: Promise<any> = new Promise((resolve, reject) => {
     .connect(process.env.DB_CONNECT)
     .then(() => {
       console.log("Connected to database successfully");
-
       const app = express();
 
       app.use(crossOrigin({ origin: "*" }));
@@ -34,19 +32,22 @@ const appPromise: Promise<any> = new Promise((resolve, reject) => {
 
       app.use(bodyParser.json());
       app.use(bodyParser.urlencoded({ extended: true }));
-
       app.use(authenticateToken);
 
       const authRouter = require("./routes/auth_route");
+
       app.use("/auth", authRouter);
 
       const postsRouter = require("./routes/posts_route");
+
       app.use("/posts", postsRouter);
 
       const commentsRouter = require("./routes/comments_route");
+
       app.use("/comments", commentsRouter);
 
       const usersRouter = require("./routes/users_route");
+
       app.use("/users", usersRouter);
 
       const aiRouter = require("./routes/ai_route");
