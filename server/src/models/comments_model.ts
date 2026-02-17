@@ -1,13 +1,13 @@
-import { Comment } from "../dtos/comment";
 import mongoose from "mongoose";
+import { Comment } from "../dtos/comment";
 
 const commentsSchema = new mongoose.Schema<Comment>({
-  userId: {
+  user: {
     type: mongoose.Types.ObjectId,
     ref: "users",
     required: true,
   },
-  postId: {
+  post: {
     type: mongoose.Types.ObjectId,
     ref: "posts",
     required: true,

@@ -39,7 +39,7 @@ const createUser = async (req: Request, res: Response) => {
   }
 };
 
-const updateUser = async (req: Request, res: Response): Promise<any> => {
+const updateUser = async (req: Request, res: Response) => {
   try {
     await uploadFile(req, res);
     const username: string = req.body.username;

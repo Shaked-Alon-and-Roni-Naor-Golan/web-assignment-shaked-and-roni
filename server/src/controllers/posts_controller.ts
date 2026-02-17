@@ -1,17 +1,19 @@
 import { Request, Response } from "express";
 import { Post } from "../dtos/post";
-import { PostModel } from "../../src/models/posts_model";
+import { PostModel } from "../models/posts_model";
 
 const getAllPosts = async (req: Request, res: Response) => {
-  const postSenderRaw = req.query.postSender;
-  const postSender =
-    typeof postSenderRaw === "string" ? postSenderRaw : undefined;
+  const postOwner = req.query.postOwner;
 
   try {
-    const posts = postSender
-      ? await PostModel.find({ sender: postSender }).populate("sender")
-      : await PostModel.find().populate("sender");
-
+    let posts: Post[];
+    if (postOwner) {
+      posts = await PostModel.find({ owner: String(postOwner) }).populate(
+        "owner"
+      );
+    } else {
+      posts = await PostModel.find().populate("owner");
+    }
 
     res.send(posts);
   } catch (error) {
@@ -23,7 +25,7 @@ const getPostById = async (req: Request, res: Response) => {
   const postId: string = req.params.postId;
 
   try {
-    const post: Post = (await PostModel.findById(postId).populate("sender"));
+    const post: Post = await PostModel.findById(postId).populate("owner");
     if (post) {
       res.send(post);
     } else {
@@ -36,6 +38,7 @@ const getPostById = async (req: Request, res: Response) => {
 
 const createPost = async (req: Request, res: Response) => {
   const createdPost: Post = req.body;
+  console.log(createdPost);
   try {
     const post: Post = await PostModel.create(createdPost);
     res.send(post);
@@ -52,7 +55,7 @@ const updatePost = async (req: Request, res: Response) => {
     const result = await PostModel.updateOne(
       { _id: postId },
       updatedPostContent
-    ).populate("sender");
+    ).populate("owner");
     if (result.modifiedCount > 0) {
       res.status(201).send();
     } else {

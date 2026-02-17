@@ -3,7 +3,7 @@ import { User } from "./user";
 
 export type Comment = {
   _id: string;
-  userId: User
-  postId: Post;
+  user: User;
+  post: Post;
   content: string;
 };

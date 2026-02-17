@@ -1,11 +1,12 @@
-import { Router } from "express";
-const router = Router();
+import * as express from "express";
 import {
-    getAllPosts,
-    getPostById,
-    createPost,
-    updatePost,
-  } from "../controllers/posts_controller";
+  getAllPosts,
+  getPostById,
+  createPost,
+  updatePost,
+} from "../controllers/posts_controller";
+
+const router = express.Router();
 
 router.get("/", getAllPosts);
 

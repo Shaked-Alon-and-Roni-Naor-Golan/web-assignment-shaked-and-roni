@@ -1,5 +1,4 @@
-
-import { Router, Request, Response } from "express";
+import * as express from "express";
 import {
   login,
   register,
@@ -7,7 +6,8 @@ import {
   refreshToken,
   googleLogin,
 } from "../controllers/auth_controller";
-const router = Router();
+
+const router = express.Router();
 
 router.post("/login", login);
 
