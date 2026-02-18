@@ -34,12 +34,12 @@ const SignUp = () => {
       >
         <div className="text-center mb-2">
           <img
-            src="/logo.png"
-            alt="Movieland Logo"
+            src="/src/assets/logo.png"
+            alt="MovieLand Logo"
             style={{ width: "150px", height: "150px" }}
           />
           <h4 className="mt-2">MovieLand</h4>
-          <p className="text-muted">Please sign up!</p>
+          <p className="text-muted">Hungry? Just sign up!</p>
         </div>
         <SignUpForm formData={formData} onInputChange={handleInputChange} />
         <p className="text-center mt-3">
