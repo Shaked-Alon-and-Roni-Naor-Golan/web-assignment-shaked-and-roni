@@ -10,11 +10,11 @@ const Navbar = () => {
         <Link className="navbar-brand" to="/">
           <img
             src="/logo.png"
-            alt="Movieland Logo"
+            alt="JustEat Logo"
             className="logo m-2 rounded-circle"
             style={{ width: "30px", height: "30px" }}
           />
-          MovieLand
+          JustEat
         </Link>
         <button
           className="navbar-toggler"
