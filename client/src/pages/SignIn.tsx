@@ -51,11 +51,11 @@ const SignIn = () => {
         <div className="text-center mb-2">
           <img
             src="/src/assets/logo.png"
-            alt="JustEat Logo"
+            alt="MovieLand Logo"
             style={{ width: "150px", height: "150px" }}
           />
-          <h4 className="mt-2">JustEat</h4>
-          <p className="text-muted">Hungry? Just sign in!</p>
+          <h4 className="mt-2">MovieLand</h4>
+          <p className="text-muted">Wanna watch a movie? Just sign in!</p>
         </div>
         <SignInForm formData={formData} onInputChange={handleInputChange} />
         <div className="mt-2 px-7">
