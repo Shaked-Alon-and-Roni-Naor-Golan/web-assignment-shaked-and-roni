@@ -1,8 +1,13 @@
 import { User } from "./user";
+import { Comment } from "./comment";
 
 export type Post = {
   _id: string;
-  title: string;
   owner: User;
-  content: User;
+  content: string;
+  photoSrc: string;
+  rating: number;
+  createdAt: Date;
+  likedBy: User[];
+  comments: Comment[];
 };
