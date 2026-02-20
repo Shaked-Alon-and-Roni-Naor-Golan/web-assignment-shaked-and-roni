@@ -38,9 +38,11 @@ const SignInForm = ({ formData, onInputChange }: SignInFormProps) => {
         const user = await login(username, password);
         setUser?.(user);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("error login user", err);
-      setServerError("Failed to signin user, please try again.");
+      setServerError(
+        `Failed to signin user, please try again, ${err?.response?.data}`
+      );
     }
   };
   return (

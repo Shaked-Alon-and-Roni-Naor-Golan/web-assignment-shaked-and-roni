@@ -9,7 +9,7 @@ import { PostsContextProvider } from "./context/PostsContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <GoogleOAuthProvider clientId="118665777117-ql3ouua8tf8n9r4j6o27qr7bdrg2lt3v.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId="199679980670-92k0l0d1m6v4l7n8n2rsvbqguiphuj7r.apps.googleusercontent.com">
       <UserContextProvider>
         <PostsContextProvider>
           <SnackbarProvider />
