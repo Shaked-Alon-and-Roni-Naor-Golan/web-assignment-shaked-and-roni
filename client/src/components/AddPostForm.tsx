@@ -112,6 +112,7 @@ const PostForm = ({ formData, onInputChange }: PostFormProps) => {
             <button
               className="btn btn-success"
               onClick={onEnhance}
+              type="button"
               style={{
                 marginBottom: "5px",
                 width: "20%",

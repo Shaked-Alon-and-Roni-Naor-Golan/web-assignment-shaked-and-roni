@@ -32,7 +32,9 @@ export const PostsList = ({ currentUser }: Props) => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          increaseOffset();
+          if (Object.values(posts ?? {}).length > 0) {
+            increaseOffset();
+          }
         }
       },
       { root: null, rootMargin: "20px", threshold: 1.0 }
@@ -45,7 +47,7 @@ export const PostsList = ({ currentUser }: Props) => {
     return () => {
       if (loaderRef.current) observer.unobserve(loaderRef.current);
     };
-  }, []);
+  }, [posts]);
 
   return (
     <div
