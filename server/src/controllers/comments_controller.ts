@@ -1,13 +1,16 @@
 import { Request, Response } from "express";
 import { CommentModel } from "../models/comments_model";
 import { Comment } from "../dtos/comment";
+import { PostModel } from "../models/posts_model";
 
 const getAllComments = async (req: Request, res: Response) => {
-  const userId = req.query.user;
+  const userId: string = String(req.query.user || "");
+
   try {
     let comments: Comment[];
+
     if (userId) {
-      comments = await CommentModel.find({ user: String(userId) }).populate(
+      comments = await CommentModel.find({ user: userId }).populate(
         "post",
         "user"
       );
@@ -38,26 +41,16 @@ const getCommentById = async (req: Request, res: Response) => {
   }
 };
 
-const getCommentByPostId = async (req: Request, res: Response) => {
-  const postId: string = req.params.postId;
-
-  try {
-    const comments: Comment[] = await CommentModel.find({ post: postId });
-    if (comments.length > 0) {
-      res.send(comments);
-    } else {
-      res.status(404).send("No comments found for post: " + postId);
-    }
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-};
-
 const createComment = async (req: Request, res: Response) => {
-  const createdComment = req.body;
+  const { postId, comment } = req.body;
+
   try {
-    const comment = await CommentModel.create(createdComment);
-    res.status(201).send(comment);
+    const newComment = await CommentModel.create(comment);
+    await PostModel.updateOne(
+      { _id: postId },
+      { $push: { comments: newComment._id } }
+    );
+    res.status(201).send(newComment);
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -100,7 +93,6 @@ const deleteCommentById = async (req: Request, res: Response) => {
 export {
   getAllComments,
   getCommentById,
-  getCommentByPostId,
   createComment,
   updateComment,
   deleteCommentById,
