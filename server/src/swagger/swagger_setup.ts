@@ -2,9 +2,9 @@ export const swaggerOptions = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "Just Eat API",
+      title: "Movie Land API",
       version: "1.0.0",
-      description: "API for managing resturant reviews",
+      description: "API for managing movies reviews",
     },
     components: {
       schemas: {
