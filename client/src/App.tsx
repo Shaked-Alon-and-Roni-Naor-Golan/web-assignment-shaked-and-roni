@@ -2,6 +2,7 @@ import Home from "./pages/Home";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import AddPost from "./pages/AddPost";
+import Profile from "./pages/Profile";
 import Navbar from "./components/Navbar";
 import PostDetails from "./pages/PostDetails";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -36,6 +37,7 @@ function App() {
               <>
                 <Route path="/" element={<Home />} />
                 <Route path="/add-post" element={<AddPost></AddPost>} />
+                <Route path="/profile" element={<Profile></Profile>} />
                 <Route path="/post/:id" element={<PostDetails></PostDetails>} />
               </>
             )}
