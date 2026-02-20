@@ -27,11 +27,11 @@ const Navbar = () => {
         <Link className="navbar-brand" to="/">
           <img
             src="/logo.png"
-            alt="MovieLand Logo"
+            alt="JustEat Logo"
             className="logo m-2 rounded-circle"
             style={{ width: "30px", height: "30px" }}
           />
-          MovieLand
+          JustEat
         </Link>
         <button
           className="navbar-toggler"
@@ -53,6 +53,11 @@ const Navbar = () => {
             </li>
             <li className="nav-item">
               <div className="nav-link">|</div>
+            </li>
+            <li className="nav-item">
+              <Link to="/profile" className="nav-link">
+                Profile
+              </Link>
             </li>
             <li className="nav-item">
               <div className="nav-link">|</div>
