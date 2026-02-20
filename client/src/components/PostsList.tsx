@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Post } from "../interfaces/post";
 import PostComponent from "./Post";
 import { usePostsContext } from "../context/PostsContext";
 
@@ -79,7 +78,7 @@ export const PostsList = ({ currentUser }: Props) => {
                 Object.values(posts ?? {}).map((post) => (
                   <div key={post._id}>
                     <PostComponent
-                      enableChanges={true}
+                      isEditable={true}
                       key={post._id}
                       post={post}
                     />
