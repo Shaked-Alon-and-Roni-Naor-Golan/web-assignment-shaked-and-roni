@@ -62,10 +62,15 @@ export const login = async (req: Request, res: Response) => {
   const { username, password } = req.body;
   try {
     const user = await UserModel.findOne({ username });
-    if (user == null) throw Error("Invalid Credentials");
+
+    if (user == null) {
+      throw new Error("Invalid Credentials");
+    }
 
     const passwordsMatch = await bcrypt.compare(password, user.password);
-    if (!passwordsMatch) throw Error("Invalid Credentials");
+    if (!passwordsMatch) {
+      throw new Error("Invalid Credentials");
+    }
 
     const { accessToken, refreshToken, userTokens } =
       await generateAndSaveTokens(user);
