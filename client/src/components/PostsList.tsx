@@ -22,10 +22,12 @@ export const PostsList = ({ currentUser }: Props) => {
   const loaderRef = useRef(null);
 
   const increaseOffset = () => {
-    setCurrentOffset((prev) => {
-      reFetch(prev + 3);
-      return prev + 3;
-    });
+    if (currentOffset <= Object.values(posts ?? {}).length) {
+      setCurrentOffset((prev) => {
+        reFetch(prev + 3);
+        return prev + 3;
+      });
+    }
   };
 
   useEffect(() => {
@@ -37,7 +39,7 @@ export const PostsList = ({ currentUser }: Props) => {
           }
         }
       },
-      { root: null, rootMargin: "20px", threshold: 1.0 }
+      { root: null, rootMargin: "150px", threshold: 1.0 }
     );
 
     if (loaderRef.current) {
