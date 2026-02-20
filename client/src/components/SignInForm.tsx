@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SignInData } from "../pages/SignIn";
 import { login } from "../services/auth";
 import { useUserContext } from "../context/UserContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { isEmpty } from "lodash";
 
 type SignInFormProps = {
@@ -25,7 +25,10 @@ const SignInForm = ({ formData, onInputChange }: SignInFormProps) => {
     handleSubmit,
     formState: { errors },
     register,
-  } = useForm<SignInData>({ resolver: zodResolver(formSchema) });
+    setValue,
+  } = useForm<SignInData>({
+    resolver: zodResolver(formSchema),
+  });
 
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -37,7 +40,7 @@ const SignInForm = ({ formData, onInputChange }: SignInFormProps) => {
       }
     } catch (err) {
       console.error("error login user", err);
-      setServerError("Failed to signup user, please try again.");
+      setServerError("Failed to signin user, please try again.");
     }
   };
   return (
@@ -49,7 +52,10 @@ const SignInForm = ({ formData, onInputChange }: SignInFormProps) => {
           className="form-control"
           placeholder="Username*"
           value={formData.username}
-          onChange={(e) => onInputChange("username", e.target.value)}
+          onChange={(e) => {
+            onInputChange("username", e.target.value);
+            setValue("username", e.target.value);
+          }}
         />
         {errors.username && (
           <p className="text-danger">{errors.username.message}</p>
@@ -62,7 +68,10 @@ const SignInForm = ({ formData, onInputChange }: SignInFormProps) => {
           className="form-control"
           placeholder="Password*"
           value={formData.password}
-          onChange={(e) => onInputChange("password", e.target.value)}
+          onChange={(e) => {
+            onInputChange("password", e.target.value);
+            setValue("password", e.target.value);
+          }}
         />
         {errors.password && (
           <p className="text-danger">{errors.password.message}</p>
