@@ -205,4 +205,4 @@ export const signup = async (userData: SignUpData) => {
     console.error("Couldn't sign up", err);
     throw err;
   }
-};
+}; 
