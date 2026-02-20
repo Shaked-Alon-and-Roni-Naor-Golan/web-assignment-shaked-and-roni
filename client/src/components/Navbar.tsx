@@ -55,6 +55,11 @@ const Navbar = () => {
               <div className="nav-link">|</div>
             </li>
             <li className="nav-item">
+              <Link to="/profile" className="nav-link">
+                Profile
+              </Link>
+            </li>
+            <li className="nav-item">
               <div className="nav-link">|</div>
             </li>
             <li className="nav-item">
