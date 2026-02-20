@@ -1,6 +1,6 @@
 @accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTc5M2U0NjJmOWY0ZmRmZWM2MTY5YzIiLCJ1c2VybmFtZSI6InJvbmluYWdvIiwiaWF0IjoxNzY5NTUzNDgwLCJleHAiOjE3Njk1Njc4ODB9.niPjaeyvppIHMGdlOq-7F87m_eWodpmMebpCJzfsx9k
 @refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTc5M2U0NjJmOWY0ZmRmZWM2MTY5YzIiLCJ1c2VybmFtZSI6InJvbmluYWdvIiwiaWF0IjoxNzY5NTUzNDgwLCJleHAiOjE3Njk4MTI2ODB9.Fcircffz29Zocb3pMYK6nLav8J6C_YJ8rhAzMgI5TDs
-@baseUrl = http://localhost:4000
+@baseUrl = http://localhost:3000
 
 ###Authentication###
 

@@ -5,7 +5,7 @@
 @accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTc5M2UwMzMwYjljZDM1N2EzY2I1NmEiLCJ1c2VybmFtZSI6InJvbmluYWdvIiwiaWF0IjoxNzY5NTUzNDIxLCJleHAiOjE3Njk1Njc4MjF9.P-GXCcoNQ7RZokOWzXCN7AwPucjkmxkCQP1RSfC4xjQ
 @refreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTc5M2UwMzMwYjljZDM1N2EzY2I1NmEiLCJ1c2VybmFtZSI6InJvbmluYWdvIiwiaWF0IjoxNzY5NTUzNDIxLCJleHAiOjE3Njk4MTI2MjF9.wgnS-rVPLnL9yybe7Q1uumvUpOOTLqdqCQfFl6CeqF4
 >>>>>>> Stashed changes
-@baseUrl = http://localhost:4000
+@baseUrl = http://localhost:000
 
 ###Authentication###
 
