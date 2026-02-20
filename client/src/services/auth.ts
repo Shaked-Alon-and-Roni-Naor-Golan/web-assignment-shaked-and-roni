@@ -203,5 +203,6 @@ export const signup = async (userData: SignUpData) => {
     return user;
   } catch (err) {
     console.error("Couldn't sign up", err);
+    return null;
   }
 };

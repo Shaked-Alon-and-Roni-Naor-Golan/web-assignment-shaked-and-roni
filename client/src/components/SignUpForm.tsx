@@ -66,7 +66,10 @@ const SignUpForm = ({ formData, onInputChange }: SignUpFormProps) => {
           className="form-control"
           placeholder="Email*"
           value={formData.email}
-          onChange={(e) => onInputChange("email", e.target.value)}
+          onChange={(e) => {
+            onInputChange("email", e.target.value);
+            setValue("email", e.target.value);
+          }}
         />
         {errors.email && <p className="text-danger">{errors.email.message}</p>}
       </div>
@@ -77,7 +80,10 @@ const SignUpForm = ({ formData, onInputChange }: SignUpFormProps) => {
           className="form-control"
           placeholder="Username*"
           value={formData.username}
-          onChange={(e) => onInputChange("username", e.target.value)}
+          onChange={(e) => {
+            onInputChange("username", e.target.value);
+            setValue("username", e.target.value);
+          }}
         />
         {errors.username && (
           <p className="text-danger">{errors.username.message}</p>
@@ -90,7 +96,10 @@ const SignUpForm = ({ formData, onInputChange }: SignUpFormProps) => {
           className="form-control"
           placeholder="Password*"
           value={formData.password}
-          onChange={(e) => onInputChange("password", e.target.value)}
+          onChange={(e) => {
+            onInputChange("password", e.target.value);
+            setValue("password", e.target.value);
+          }}
         />
         {errors.password && (
           <p className="text-danger">{errors.password.message}</p>
