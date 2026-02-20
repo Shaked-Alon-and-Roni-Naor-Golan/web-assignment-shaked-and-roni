@@ -39,7 +39,7 @@ const SignUp = () => {
             style={{ width: "150px", height: "150px" }}
           />
           <h4 className="mt-2">MovieLand</h4>
-          <p className="text-muted">Hungry? Just sign up!</p>
+          <p className="text-muted">Live in a movie? sign up!</p>
         </div>
         <SignUpForm formData={formData} onInputChange={handleInputChange} />
         <p className="text-center mt-3">
