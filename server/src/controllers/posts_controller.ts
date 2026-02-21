@@ -70,18 +70,41 @@ const updatePost = async (req: Request, res: Response) => {
     await uploadFile(req, res);
     const postId: string = req.params.postId;
 
-    const updatedPost: Post = JSON.parse(req.body.updatedPostContent);
+    let updatedPost: Post;
+    
+    // req.body.updatedPostContent é uma string porque vem do FormData
+    if (req.body.updatedPostContent) {
+      updatedPost = JSON.parse(req.body.updatedPostContent);
+    } else {
+      updatedPost = req.body;
+    }
+
+    // בדוק שהמשתמש הוא בעל ה-post
+    const existingPost = await PostModel.findById(postId);
+    if (!existingPost) {
+      if (req.file?.filename) {
+        deleteFile(req.file.filename);
+      }
+      return res.status(404).send("Cannot find specified post");
+    }
+
+    if (existingPost.owner.toString() !== (req as any).user._id) {
+      if (req.file?.filename) {
+        deleteFile(req.file.filename);
+      }
+      return res.status(403).send("You are not the owner of this post");
+    }
 
     let oldPhoto: string;
 
     if (req.file?.filename) {
       updatedPost.photoSrc = req.file.filename;
-      oldPhoto = (await PostModel.findById(postId)).photoSrc;
+      oldPhoto = existingPost.photoSrc;
     }
 
     const newPost = await PostModel.findOneAndUpdate(
       { _id: postId },
-      updatePost,
+      updatedPost,
       { new: true }
     ).populate("owner");
 
