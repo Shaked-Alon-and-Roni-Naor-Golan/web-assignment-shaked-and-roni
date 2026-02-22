@@ -18,7 +18,7 @@ interface PostProps {
 
 const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [description, setDescription] = useState(post.content);
+  const [description, setDescription] = useState(post?.content || "");
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [newPhoto, setNewPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -27,6 +27,10 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
   const { user } = useUserContext() ?? {};
   const { setPosts, posts } = usePostsContext() ?? {};
   const navigate = useNavigate();
+
+  if (!post) {
+    return null;
+  }
 
   const onEditSave = async () => {
     const updatedPostData = await updatePost(post._id, { content: description, photo: newPhoto ?? undefined });
@@ -44,32 +48,29 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
   };
 
   const isLikedByCurrUser = useMemo(() => {
-    return post.likedBy.some((currUser) => currUser?._id === user?._id);
+    return post?.likedBy?.some((currUser) => currUser?._id === user?._id) ?? false;
   }, [post, user]);
 
-  const onLikeToggle = () => {
-    const prevPosts = posts;
+  const onLikeToggle = async () => {
     try {
       if (user) {
-        let likedBy;
-        if (isLikedByCurrUser) {
-          likedBy = post.likedBy.filter(
-            (currUser) => currUser._id !== user?._id
-          );
-        } else {
-          likedBy = [user, ...post.likedBy];
+        console.log("=== LIKE TOGGLE DEBUG ===");
+        console.log("Post ID:", post._id);
+        console.log("User ID:", user._id);
+        
+        // Just send the user ID to the server
+        // Let the server handle the toggle logic
+        const updatedPostData = await updatePost(post._id, { userId: user._id });
+        
+        console.log("Updated post data:", updatedPostData);
+        
+        if (updatedPostData) {
+          updatePostInState(updatedPostData);
         }
-        const newPost: Post = {
-          ...post,
-          likedBy,
-        };
-        updatePostInState(newPost);
-        // Send only the IDs to the server
-        updatePost(post._id, { likedBy: likedBy.map((u) => u._id) as any });
       }
     } catch (error) {
-      console.error(error);
-      setPosts?.(prevPosts ?? {});
+      console.error("Error toggling like:", error);
+      console.error("Error details:", error.response?.data);
     }
   };
 
@@ -148,18 +149,18 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
         >
           <img
             src={
-              post.owner.photo
+              post.owner?.photo
                 ? post.owner.photo.startsWith("http")
                   ? post.owner.photo
                   : IMAGES_URL + post.owner.photo
                 : "/temp-user.png"
             }
-            alt={post.owner.username}
+            alt={post.owner?.username || "Unknown"}
             className="rounded-circle user-photo m-2"
             style={{ width: "30px", height: "30px" }}
           />
           <span className="ml-3">
-            <b>{post.owner.username}</b>
+            <b>{post.owner?.username || "Unknown"}</b>
           </span>
         </div>
 
@@ -260,7 +261,7 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
           <PostActionBar
             postId={post._id}
             comments={post.comments}
-            likesNumber={post.likedBy.length}
+            likesNumber={post.likedBy?.length ?? 0}
             likedByUser={isLikedByCurrUser}
             key={post._id}
             onLikeToggle={onLikeToggle}
@@ -289,10 +290,10 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
               >
                 <AiFillLike size={20} />
               </button>
-              <span className="ml-2">{post.likedBy.length} Likes</span>
+              <span className="ml-2">{post.likedBy?.length ?? 0} Likes</span>
             </div>
             <span style={{ cursor: "pointer" }} onClick={() => navigate(`/post/${post._id}`)}>
-              {post.comments.length} Comments
+              {post.comments?.length ?? 0} Comments
             </span>
           </div>
         )}

@@ -135,7 +135,7 @@ const PostForm = ({ formData, onInputChange }: PostFormProps) => {
           style={{ width: "85%" }}
           className="btn btn-success"
         >
-          Add Your Review
+          Add Your Movie
         </button>
       </div>
     </form>

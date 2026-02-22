@@ -20,4 +20,5 @@ export interface UpdatePostPayload {
   content?: string;
   photo?: File | null;
   likedBy?: User[];
+  userId?: string;
 }

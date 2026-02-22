@@ -1,5 +1,6 @@
 import { Post } from "../dtos/post";
 import { Request, Response } from "express";
+import mongoose from "mongoose";
 import { deleteFile, uploadFile } from "../utils/multer";
 import { PostModel } from "../models/posts_model";
 
@@ -76,27 +77,12 @@ const updatePost = async (req: Request, res: Response) => {
     await uploadFile(req, res);
     const postId: string = req.params.postId;
 
-    let updatedPost: Partial<Post> = {};
-    
-    if (req.body.updatedPostContent) {
-      const parsedData = JSON.parse(req.body.updatedPostContent);
-      if (parsedData.content !== undefined) updatedPost.content = parsedData.content;
-      if (parsedData.likedBy !== undefined) {
-        // Handle both array of user objects and array of IDs
-        updatedPost.likedBy = Array.isArray(parsedData.likedBy)
-          ? parsedData.likedBy.map((user: any) => user._id || user)
-          : [];
-      }
-    } else {
-      if (req.body.content !== undefined) updatedPost.content = req.body.content;
-      if (req.body.likedBy !== undefined) {
-        // Handle both array of user objects and array of IDs
-        updatedPost.likedBy = Array.isArray(req.body.likedBy)
-          ? req.body.likedBy.map((user: any) => user._id || user)
-          : [];
-      }
-    }
+    console.log("=== UPDATE POST DEBUG ===");
+    console.log("Post ID:", postId);
+    console.log("Request body:", req.body);
+    console.log("User ID:", (req as any).user?._id);
 
+    // Get existing post first
     const existingPost = await PostModel.findById(postId);
     if (!existingPost) {
       if (req.file?.filename) {
@@ -105,7 +91,81 @@ const updatePost = async (req: Request, res: Response) => {
       return res.status(404).send("Cannot find specified post");
     }
 
-    if ((req.body.content !== undefined || req.file?.filename) && existingPost.owner.toString() !== (req as any).user._id) {
+    console.log("Existing post owner:", existingPost.owner.toString());
+
+    let updatedFields: any = {};
+    let hasContentChanges = false;
+    
+    // Parse the request data
+    let parsedData: any = {};
+    if (req.body.updatedPostContent) {
+      parsedData = JSON.parse(req.body.updatedPostContent);
+    } else {
+      parsedData = req.body;
+    }
+
+    console.log("Parsed data:", parsedData);
+
+    // Handle content update
+    if (parsedData.content !== undefined) {
+      updatedFields.content = parsedData.content;
+      hasContentChanges = true;
+    }
+
+    // Handle photo update
+    if (req.file?.filename) {
+      updatedFields.photoSrc = req.file.filename;
+      hasContentChanges = true;
+    }
+
+    // Handle like toggle via userId
+    if (parsedData.userId !== undefined) {
+      const userId = parsedData.userId;
+      
+      // Filter out null/undefined values and convert to strings
+      const likedByIds = (existingPost.likedBy || [])
+        .filter((id: any) => id != null)
+        .map((id: any) => id.toString());
+      
+      const isLiked = likedByIds.includes(userId);
+      
+      console.log("Like toggle - userId:", userId, "isLiked:", isLiked);
+      console.log("Current likedBy array:", likedByIds);
+      
+      if (isLiked) {
+        // Remove the like - use $pull for atomic operation
+        const result = await PostModel.findByIdAndUpdate(
+          postId,
+          { $pull: { likedBy: new mongoose.Types.ObjectId(userId) } },
+          { new: true }
+        )
+          .populate("owner", "-tokens -email -password")
+          .populate("likedBy", "-tokens -email -password")
+          .populate({ path: "comments", populate: { path: "user" } });
+        
+        console.log("After removing like, likedBy count:", result?.likedBy?.length);
+        return res.status(200).send(result);
+      } else {
+        // Add the like - use $addToSet for atomic operation
+        const result = await PostModel.findByIdAndUpdate(
+          postId,
+          { $addToSet: { likedBy: new mongoose.Types.ObjectId(userId) } },
+          { new: true }
+        )
+          .populate("owner", "-tokens -email -password")
+          .populate("likedBy", "-tokens -email -password")
+          .populate({ path: "comments", populate: { path: "user" } });
+        
+        console.log("After adding like, likedBy count:", result?.likedBy?.length);
+        return res.status(200).send(result);
+      }
+    }
+
+    console.log("Has content changes:", hasContentChanges);
+
+    // Only owner can edit content and photo (NOT for likes)
+    if (hasContentChanges && existingPost.owner.toString() !== (req as any).user._id) {
+      console.log("FORBIDDEN: User is not owner");
       if (req.file?.filename) {
         deleteFile(req.file.filename);
       }
@@ -114,22 +174,25 @@ const updatePost = async (req: Request, res: Response) => {
 
     let oldPhoto: string;
 
-    if (req.file?.filename) {
-      updatedPost.photoSrc = req.file.filename;
+    if (req.file?.filename && oldPhoto !== req.file.filename) {
       oldPhoto = existingPost.photoSrc;
     }
 
-    const newPost = await PostModel.findOneAndUpdate(
-      { _id: postId },
-      updatedPost,
+    // Update the post with $set to ensure proper saving
+    const newPost = await PostModel.findByIdAndUpdate(
+      postId,
+      { $set: updatedFields },
       { new: true }
-    ).populate("owner").populate("likedBy").populate({ path: "comments", populate: { path: "user" } });
+    )
+      .populate("owner", "-tokens -email -password")
+      .populate("likedBy", "-tokens -email -password")
+      .populate({ path: "comments", populate: { path: "user" } });
 
     if (newPost) {
       if (oldPhoto) {
         deleteFile(oldPhoto);
       }
-      res.status(201).send(newPost);
+      res.status(200).send(newPost);
     } else {
       if (req.file?.filename) {
         deleteFile(req.file.filename);
