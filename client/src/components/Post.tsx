@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import { PostActionBar } from "./PostActionBar";
 import { Post } from "../interfaces/post";
 import { StarRating } from "./StarRating";
@@ -21,13 +21,20 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
   const [description, setDescription] = useState(post.content);
   const [rating, setRating] = useState(post.rating);
   const [isHovered, setIsHovered] = useState<boolean>(false);
+  const [newPhoto, setNewPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { user } = useUserContext() ?? {};
   const { setPosts, posts } = usePostsContext() ?? {};
   const navigate = useNavigate();
 
-  const onEditSave = () => {
-    updatePost(post._id, { content: description, rating: rating });
+  const onEditSave = async () => {
+    const updatedPostData = await updatePost(post._id, { content: description, rating: rating, photo: newPhoto ?? undefined });
+    
+    if (updatedPostData) {
+      updatePostInState(updatedPostData);
+    }
   };
 
   const deletePost = () => {
@@ -71,7 +78,8 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
   };
   const handleSave = () => {
     onEditSave();
-
+    setNewPhoto(null);
+    setPhotoPreview(null);
     setIsEditing(false);
   };
 
@@ -169,11 +177,57 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
               className="form-control mb-3"
               style={{ height: "40px", resize: "none" }}
             />
-            <img
-              src={IMAGES_URL + post.photoSrc}
-              alt="Post"
-              height="200px"
-              className="img-fluid mb-1"
+            <div 
+              style={{
+                position: "relative",
+                cursor: "pointer",
+                marginBottom: "10px"
+              }}
+              onClick={() => fileInputRef.current?.click()}
+              title="Click to change image"
+            >
+              <img
+                src={photoPreview || IMAGES_URL + post.photoSrc}
+                alt="Post"
+                height="200px"
+                className="img-fluid"
+                style={{
+                  opacity: 0.8,
+                  transition: "opacity 0.2s"
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  color: "white",
+                  padding: "10px 20px",
+                  borderRadius: "5px",
+                  fontSize: "12px"
+                }}
+              >
+                Click to change image
+              </div>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setNewPhoto(file);
+                  const reader = new FileReader();
+                  reader.onload = (event) => {
+                    setPhotoPreview(event.target?.result as string);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
             />
             <StarRating rating={rating} onRatingChanged={setRating} />
             <button className="btn btn-dark mt-1" onClick={handleSave}>

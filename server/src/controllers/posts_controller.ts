@@ -70,16 +70,19 @@ const updatePost = async (req: Request, res: Response) => {
     await uploadFile(req, res);
     const postId: string = req.params.postId;
 
-    let updatedPost: Post;
+    let updatedPost: Partial<Post> = {};
     
-    // req.body.updatedPostContent é uma string porque vem do FormData
     if (req.body.updatedPostContent) {
-      updatedPost = JSON.parse(req.body.updatedPostContent);
+      const parsedData = JSON.parse(req.body.updatedPostContent);
+      if (parsedData.content !== undefined) updatedPost.content = parsedData.content;
+      if (parsedData.rating !== undefined) updatedPost.rating = parsedData.rating;
+      if (parsedData.likedBy !== undefined) updatedPost.likedBy = parsedData.likedBy;
     } else {
-      updatedPost = req.body;
+      if (req.body.content !== undefined) updatedPost.content = req.body.content;
+      if (req.body.rating !== undefined) updatedPost.rating = req.body.rating;
+      if (req.body.likedBy !== undefined) updatedPost.likedBy = req.body.likedBy;
     }
 
-    // בדוק שהמשתמש הוא בעל ה-post
     const existingPost = await PostModel.findById(postId);
     if (!existingPost) {
       if (req.file?.filename) {
