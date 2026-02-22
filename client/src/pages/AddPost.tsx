@@ -3,7 +3,6 @@ import PostForm from "../components/AddPostForm";
 
 export interface PostData {
   content: string;
-  rating: number;
   photo?: File | null;
 }
 
@@ -11,7 +10,6 @@ const AddPost = () => {
   const [formData, setFormData] = useState<PostData>({
     content: "",
     photo: null,
-    rating: 0,
   });
 
   const handleInputChange = (

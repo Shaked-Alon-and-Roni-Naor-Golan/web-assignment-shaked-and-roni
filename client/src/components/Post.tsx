@@ -1,11 +1,11 @@
 import { useMemo, useState, useRef } from "react";
 import { PostActionBar } from "./PostActionBar";
 import { Post } from "../interfaces/post";
-import { StarRating } from "./StarRating";
 import { useNavigate } from "react-router-dom";
 import { IMAGES_URL } from "../constants/files";
 import { MdDeleteForever } from "react-icons/md";
 import { MdEdit } from "react-icons/md";
+import { AiFillLike } from "react-icons/ai";
 import { useUserContext } from "../context/UserContext";
 import { usePostsContext } from "../context/PostsContext";
 import { deletePostById, updatePost } from "../services/posts";
@@ -19,7 +19,6 @@ interface PostProps {
 const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [description, setDescription] = useState(post.content);
-  const [rating, setRating] = useState(post.rating);
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [newPhoto, setNewPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -30,7 +29,7 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
   const navigate = useNavigate();
 
   const onEditSave = async () => {
-    const updatedPostData = await updatePost(post._id, { content: description, rating: rating, photo: newPhoto ?? undefined });
+    const updatedPostData = await updatePost(post._id, { content: description, photo: newPhoto ?? undefined });
     
     if (updatedPostData) {
       updatePostInState(updatedPostData);
@@ -65,7 +64,8 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
           likedBy,
         };
         updatePostInState(newPost);
-        updatePost(post._id, { likedBy });
+        // Send only the IDs to the server
+        updatePost(post._id, { likedBy: likedBy.map((u) => u._id) as any });
       }
     } catch (error) {
       console.error(error);
@@ -112,7 +112,7 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
             gap: "10px",
           }}
         >
-          {showActionBar && !isEditing && (
+          {showActionBar && !isEditing && isEditable && (
             <button
               className="btn btn-light"
               style={{ border: "none", background: "transparent" }}
@@ -229,7 +229,6 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
                 }
               }}
             />
-            <StarRating rating={rating} onRatingChanged={setRating} />
             <button className="btn btn-dark mt-1" onClick={handleSave}>
               Save
             </button>
@@ -254,10 +253,6 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
               alt="Post"
               className="img-fluid mb-1"
             />
-            <StarRating
-              rating={rating}
-              onRatingChanged={() => setIsEditing(true)}
-            />
           </div>
         )}
 
@@ -270,6 +265,36 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
             key={post._id}
             onLikeToggle={onLikeToggle}
           ></PostActionBar>
+        )}
+        
+        {!showActionBar && user && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-around",
+              marginTop: "8px",
+              paddingTop: "8px",
+              borderTop: "1px solid #eee",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <button
+                className={`btn btn-light ${
+                  isLikedByCurrUser ? "text-danger" : "text-secondary"
+                }`}
+                onClick={onLikeToggle}
+                style={{ border: "none", background: "transparent", padding: "8px" }}
+                title={isLikedByCurrUser ? "Unlike" : "Like"}
+              >
+                <AiFillLike size={20} />
+              </button>
+              <span className="ml-2">{post.likedBy.length} Likes</span>
+            </div>
+            <span style={{ cursor: "pointer" }} onClick={() => navigate(`/post/${post._id}`)}>
+              {post.comments.length} Comments
+            </span>
+          </div>
         )}
       </div>
     </div>

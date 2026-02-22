@@ -56,9 +56,15 @@ const createPost = async (req: Request, res: Response) => {
     await uploadFile(req, res);
     const post: Post = JSON.parse(req.body.post);
     post.photoSrc = req.file.filename;
-    await PostModel.create(post);
+    const newPost = await PostModel.create(post);
+    
+    // Populate the post before sending response
+    const populatedPost = await PostModel.findById(newPost._id)
+      .populate("owner", "-tokens -email -password")
+      .populate("likedBy")
+      .populate({ path: "comments", populate: { path: "user" } });
 
-    res.status(201).send();
+    res.status(201).send(populatedPost);
   } catch (error) {
     req.file?.filename && deleteFile(req.file.filename);
     res.status(500).send(error.message);
@@ -75,12 +81,20 @@ const updatePost = async (req: Request, res: Response) => {
     if (req.body.updatedPostContent) {
       const parsedData = JSON.parse(req.body.updatedPostContent);
       if (parsedData.content !== undefined) updatedPost.content = parsedData.content;
-      if (parsedData.rating !== undefined) updatedPost.rating = parsedData.rating;
-      if (parsedData.likedBy !== undefined) updatedPost.likedBy = parsedData.likedBy;
+      if (parsedData.likedBy !== undefined) {
+        // Handle both array of user objects and array of IDs
+        updatedPost.likedBy = Array.isArray(parsedData.likedBy)
+          ? parsedData.likedBy.map((user: any) => user._id || user)
+          : [];
+      }
     } else {
       if (req.body.content !== undefined) updatedPost.content = req.body.content;
-      if (req.body.rating !== undefined) updatedPost.rating = req.body.rating;
-      if (req.body.likedBy !== undefined) updatedPost.likedBy = req.body.likedBy;
+      if (req.body.likedBy !== undefined) {
+        // Handle both array of user objects and array of IDs
+        updatedPost.likedBy = Array.isArray(req.body.likedBy)
+          ? req.body.likedBy.map((user: any) => user._id || user)
+          : [];
+      }
     }
 
     const existingPost = await PostModel.findById(postId);
@@ -91,7 +105,7 @@ const updatePost = async (req: Request, res: Response) => {
       return res.status(404).send("Cannot find specified post");
     }
 
-    if (existingPost.owner.toString() !== (req as any).user._id) {
+    if ((req.body.content !== undefined || req.file?.filename) && existingPost.owner.toString() !== (req as any).user._id) {
       if (req.file?.filename) {
         deleteFile(req.file.filename);
       }
@@ -109,7 +123,7 @@ const updatePost = async (req: Request, res: Response) => {
       { _id: postId },
       updatedPost,
       { new: true }
-    ).populate("owner");
+    ).populate("owner").populate("likedBy").populate({ path: "comments", populate: { path: "user" } });
 
     if (newPost) {
       if (oldPhoto) {

@@ -48,7 +48,7 @@ const PostDetails = () => {
         }}
       >
         <div className="d-flex justify-content-center align-items-center">
-          <PostComponent post={post} showActionBar={true}></PostComponent>
+          <PostComponent post={post} showActionBar={true} isEditable={false}></PostComponent>
         </div>
         <div className="d-flex justify-content-center align-items-center">
           <PostComments

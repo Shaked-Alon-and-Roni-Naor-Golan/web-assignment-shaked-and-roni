@@ -82,7 +82,8 @@ export const PostsList = ({ currentUser }: Props) => {
                 Object.values(posts ?? {}).map((post) => (
                   <div key={post._id}>
                     <PostComponent
-                      isEditable={true}
+                      isEditable={!!currentUser}
+                      showActionBar={!!currentUser}
                       key={post._id}
                       post={post}
                     />

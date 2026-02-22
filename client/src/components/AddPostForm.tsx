@@ -10,12 +10,10 @@ import { isEmpty } from "lodash";
 import { useNavigate } from "react-router-dom";
 import { FaWandMagicSparkles } from "react-icons/fa6";
 import { enqueueSnackbar } from "notistack";
-import { StarRating } from "./StarRating";
 import { enhanceReview } from "../services/ai";
 
 const formSchema = z.object({
   content: z.string().min(1, "Description is required"),
-  rating: z.number().min(1).max(5),
   photo: z
     .any()
     .refine(
@@ -54,10 +52,10 @@ const PostForm = ({ formData, onInputChange }: PostFormProps) => {
     onInputChange("content", enhancedContent);
   };
 
-  const onSubmit = async ({ content, photo, rating }: PostData) => {
+  const onSubmit = async ({ content, photo }: PostData) => {
     try {
       if (isEmpty(errors)) {
-        await createPost({ content, photo, owner: user!._id, rating });
+        await createPost({ content, photo, owner: user!._id });
         navigate("/");
       }
     } catch (error) {
@@ -88,15 +86,6 @@ const PostForm = ({ formData, onInputChange }: PostFormProps) => {
             height="450px"
           />
           {errors.photo && <p className="text-danger">Photo is required</p>}
-        </div>
-        <div className="d-flex justify-content-center align-items-center mb-3">
-          <StarRating
-            rating={formData.rating}
-            onRatingChanged={(newRating: number) => {
-              setValue("rating", newRating);
-              onInputChange("rating", newRating);
-            }}
-          />
         </div>
         <div
           style={{

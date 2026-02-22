@@ -9,7 +9,6 @@ const postSchema = new mongoose.Schema<Post>({
   },
   content: String,
   photoSrc: String,
-  rating: Number,
   createdAt: {
     type: Date,
     default: Date.now,
