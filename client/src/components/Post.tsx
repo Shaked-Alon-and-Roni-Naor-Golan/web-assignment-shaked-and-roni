@@ -1,11 +1,11 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import { PostActionBar } from "./PostActionBar";
 import { Post } from "../interfaces/post";
-import { StarRating } from "./StarRating";
 import { useNavigate } from "react-router-dom";
 import { IMAGES_URL } from "../constants/files";
 import { MdDeleteForever } from "react-icons/md";
 import { MdEdit } from "react-icons/md";
+import { AiFillLike } from "react-icons/ai";
 import { useUserContext } from "../context/UserContext";
 import { usePostsContext } from "../context/PostsContext";
 import { deletePostById, updatePost } from "../services/posts";
@@ -18,16 +18,26 @@ interface PostProps {
 
 const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [description, setDescription] = useState(post.content);
-  const [rating, setRating] = useState(post.rating);
+  const [description, setDescription] = useState(post?.content || "");
   const [isHovered, setIsHovered] = useState<boolean>(false);
+  const [newPhoto, setNewPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { user } = useUserContext() ?? {};
   const { setPosts, posts } = usePostsContext() ?? {};
   const navigate = useNavigate();
 
-  const onEditSave = () => {
-    updatePost(post._id, { content: description, rating: rating });
+  if (!post) {
+    return null;
+  }
+
+  const onEditSave = async () => {
+    const updatedPostData = await updatePost(post._id, { content: description, photo: newPhoto ?? undefined });
+    
+    if (updatedPostData) {
+      updatePostInState(updatedPostData);
+    }
   };
 
   const deletePost = () => {
@@ -38,31 +48,29 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
   };
 
   const isLikedByCurrUser = useMemo(() => {
-    return post.likedBy.some((currUser) => currUser?._id === user?._id);
+    return post?.likedBy?.some((currUser) => currUser?._id === user?._id) ?? false;
   }, [post, user]);
 
-  const onLikeToggle = () => {
-    const prevPosts = posts;
+  const onLikeToggle = async () => {
     try {
       if (user) {
-        let likedBy;
-        if (isLikedByCurrUser) {
-          likedBy = post.likedBy.filter(
-            (currUser) => currUser._id !== user?._id
-          );
-        } else {
-          likedBy = [user, ...post.likedBy];
+        console.log("=== LIKE TOGGLE DEBUG ===");
+        console.log("Post ID:", post._id);
+        console.log("User ID:", user._id);
+        
+        // Just send the user ID to the server
+        // Let the server handle the toggle logic
+        const updatedPostData = await updatePost(post._id, { userId: user._id });
+        
+        console.log("Updated post data:", updatedPostData);
+        
+        if (updatedPostData) {
+          updatePostInState(updatedPostData);
         }
-        const newPost: Post = {
-          ...post,
-          likedBy,
-        };
-        updatePostInState(newPost);
-        updatePost(post._id, { likedBy });
       }
     } catch (error) {
-      console.error(error);
-      setPosts?.(prevPosts ?? {});
+      console.error("Error toggling like:", error);
+      console.error("Error details:", error.response?.data);
     }
   };
 
@@ -71,7 +79,8 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
   };
   const handleSave = () => {
     onEditSave();
-
+    setNewPhoto(null);
+    setPhotoPreview(null);
     setIsEditing(false);
   };
 
@@ -104,7 +113,7 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
             gap: "10px",
           }}
         >
-          {showActionBar && !isEditing && (
+          {showActionBar && !isEditing && isEditable && (
             <button
               className="btn btn-light"
               style={{ border: "none", background: "transparent" }}
@@ -140,18 +149,18 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
         >
           <img
             src={
-              post.owner.photo
+              post.owner?.photo
                 ? post.owner.photo.startsWith("http")
                   ? post.owner.photo
                   : IMAGES_URL + post.owner.photo
                 : "/temp-user.png"
             }
-            alt={post.owner.username}
+            alt={post.owner?.username || "Unknown"}
             className="rounded-circle user-photo m-2"
             style={{ width: "30px", height: "30px" }}
           />
           <span className="ml-3">
-            <b>{post.owner.username}</b>
+            <b>{post.owner?.username || "Unknown"}</b>
           </span>
         </div>
 
@@ -169,13 +178,58 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
               className="form-control mb-3"
               style={{ height: "40px", resize: "none" }}
             />
-            <img
-              src={IMAGES_URL + post.photoSrc}
-              alt="Post"
-              height="200px"
-              className="img-fluid mb-1"
+            <div 
+              style={{
+                position: "relative",
+                cursor: "pointer",
+                marginBottom: "10px"
+              }}
+              onClick={() => fileInputRef.current?.click()}
+              title="Click to change image"
+            >
+              <img
+                src={photoPreview || IMAGES_URL + post.photoSrc}
+                alt="Post"
+                height="200px"
+                className="img-fluid"
+                style={{
+                  opacity: 0.8,
+                  transition: "opacity 0.2s"
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  color: "white",
+                  padding: "10px 20px",
+                  borderRadius: "5px",
+                  fontSize: "12px"
+                }}
+              >
+                Click to change image
+              </div>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setNewPhoto(file);
+                  const reader = new FileReader();
+                  reader.onload = (event) => {
+                    setPhotoPreview(event.target?.result as string);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
             />
-            <StarRating rating={rating} onRatingChanged={setRating} />
             <button className="btn btn-dark mt-1" onClick={handleSave}>
               Save
             </button>
@@ -200,10 +254,6 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
               alt="Post"
               className="img-fluid mb-1"
             />
-            <StarRating
-              rating={rating}
-              onRatingChanged={() => setIsEditing(true)}
-            />
           </div>
         )}
 
@@ -211,11 +261,41 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
           <PostActionBar
             postId={post._id}
             comments={post.comments}
-            likesNumber={post.likedBy.length}
+            likesNumber={post.likedBy?.length ?? 0}
             likedByUser={isLikedByCurrUser}
             key={post._id}
             onLikeToggle={onLikeToggle}
           ></PostActionBar>
+        )}
+        
+        {!showActionBar && user && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-around",
+              marginTop: "8px",
+              paddingTop: "8px",
+              borderTop: "1px solid #eee",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <button
+                className={`btn btn-light ${
+                  isLikedByCurrUser ? "text-danger" : "text-secondary"
+                }`}
+                onClick={onLikeToggle}
+                style={{ border: "none", background: "transparent", padding: "8px" }}
+                title={isLikedByCurrUser ? "Unlike" : "Like"}
+              >
+                <AiFillLike size={20} />
+              </button>
+              <span className="ml-2">{post.likedBy?.length ?? 0} Likes</span>
+            </div>
+            <span style={{ cursor: "pointer" }} onClick={() => navigate(`/post/${post._id}`)}>
+              {post.comments?.length ?? 0} Comments
+            </span>
+          </div>
         )}
       </div>
     </div>
