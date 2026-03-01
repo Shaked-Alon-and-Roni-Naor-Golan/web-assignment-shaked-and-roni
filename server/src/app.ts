@@ -1,7 +1,6 @@
 import { authenticateToken } from "./middlewares/auth_middleware";
 import { swaggerOptions } from "./swagger/swagger_setup";
 
-const dotenv = require("dotenv");
 const morgan = require("morgan");
 const express = require("express");
 const crossOrigin = require("cors");
@@ -10,12 +9,18 @@ const bodyParser = require("body-parser");
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 
-dotenv.config();
 const specs = swaggerJsdoc(swaggerOptions);
+const mongoUri = process.env.DB_CONNECT;
 
 const appPromise: Promise<any> = new Promise((resolve, reject) => {
+  if (!mongoUri) {
+    return reject(
+      new Error("Missing MongoDB URI. Set DB_CONNECT in server/.env")
+    );
+  }
+
   mongoose
-    .connect(process.env.DB_CONNECT)
+    .connect(mongoUri)
     .then(() => {
       console.log("Connected to database successfully");
       const app = express();
@@ -60,7 +65,7 @@ const appPromise: Promise<any> = new Promise((resolve, reject) => {
 
       resolve(app);
     })
-    .catch((error) => console.error(error));
+    .catch((error) => reject(error));
 });
 
 export default appPromise;

@@ -1,3 +1,8 @@
+import * as path from "path";
+const dotenv = require("dotenv");
+
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+
 import appPromise from "./src/app";
 
 appPromise.then((app) =>
