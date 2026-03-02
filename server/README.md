@@ -1,41 +1,74 @@
-<!-- # web-assignment-shaked-and-roni
+# web-assignment-shaked-and-roni
 
-This is a server-side application that exposes a RESTful API for managing Posts and Comments of Users. 
-The API supports full CRUD operations (Create, Read, Update, Delete).
+This is a full-stack movies social web project with both client and server sides.
+The frontend (React client) lets users browse the feed, publish movie posts, like, comment, and manage their profile.
+This README focuses on the backend API (`server`) used by that client.
 
 ---
 
 ## Features
 
-- Posts
-  - Create a new post
-  - Get all posts
-  - Get a single post by ID
-  - Get all posts written by a specific sender
-  - Update an existing post
+- Full-Stack App
+  - Client side (React) for UI, pages, forms, and user interactions
+  - Server side (Node.js + Express + MongoDB) for authentication, data, and API endpoints
+
+- Movie Posts
+  - Share a movie post with text and image
+  - View all posts feed with pagination
+  - View a single post with owner, likes, and comments
+  - View only a specific user's posts (`postOwner`) for profile page
+  - Edit post content/image (post owner)
+  - Delete a post
+  - Like / unlike a post (toggle via update endpoint)
 
 - Comments
-  - Add comments to a post
-  - Get comments by post
+  - Add a comment to a specific post
   - Get all comments
   - Get a single comment by ID
   - Update a comment
   - Delete a comment
 
-- Users
-  - Get all users
-  - Get a single user by ID
-  - Create a new user
-  - Update a user
-  - Delete a user
+- Profile
+  - Get current authenticated user (`/users/me`)
+  - Update user profile details and profile photo
+
+- Authentication
+  - Register a new account (username, email, password)
+  - Login with username/password
+  - Login with Google
+  - Refresh access token
+  - Logout
+
+## Current API Routes
 
 - Auth
-  - Register a new user
-  - Login to receive Access and Refresh tokens
-  - Logout and invalidate Refresh token
+  - `POST /auth/register`
+  - `POST /auth/login`
+  - `POST /auth/google-login`
+  - `POST /auth/refresh-token`
+  - `POST /auth/logout`
 
+- Posts
+  - `GET /posts`
+  - `GET /posts?postOwner=<userId>&offset=<number>`
+  - `GET /posts/:postId`
+  - `POST /posts`
+  - `PUT /posts/:postId`
+  - `DELETE /posts/:postId`
 
-Note: Each user can create posts and add comments to specific posts.
+- Comments
+  - `GET /comments`
+  - `GET /comments/:commentId`
+  - `POST /comments`
+  - `PUT /comments/:commentId`
+  - `DELETE /comments/:commentId`
+
+- Users
+  - `GET /users/me`
+  - `PUT /users/:userId`
+
+- AI
+  - `POST /ai/enhance`
 
 ---
 
@@ -44,7 +77,10 @@ Note: Each user can create posts and add comments to specific posts.
 # Install dependencies
 npm install
 
-# Start the server (Development)
+# Start the server
+npm run start
+
+# Start the client
 npm run dev
 
 # Run Integration Tests
@@ -55,4 +91,4 @@ npm test
 ## API Documentation
 
 Interactive API documentation is available via Swagger at:
-http://localhost:000/api-docs -->
+http://localhost:3000/api-docs
