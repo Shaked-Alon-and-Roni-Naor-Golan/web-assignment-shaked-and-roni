@@ -2,7 +2,7 @@ export const swaggerOptions = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "Movie Land API",
+      title: "MovieLand API",
       version: "1.0.0",
       description: "API for managing movies reviews",
     },
