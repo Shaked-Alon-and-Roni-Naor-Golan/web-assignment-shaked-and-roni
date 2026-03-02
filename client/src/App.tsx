@@ -19,7 +19,7 @@ function App() {
 
       <div
         className="d-flex justify-content-center align-items-center"
-        style={{ backgroundColor: "#fcf1d9" }}
+        style={{ backgroundColor: "#fcd9f5ff" }}
       >
         {loadingUser ? (
           <div
