@@ -32,7 +32,7 @@ export const uploadFile = (req: Request, res: Response): Promise<void> => {
 export const deleteFile = (fileName: string) => {
   const filePath = `${STORAGE_PATH}/${fileName}`;
   fs.unlink(filePath, (err) => {
-    if (err) {
+    if (err && (err as NodeJS.ErrnoException).code !== "ENOENT") {
       console.error(err);
     }
   });

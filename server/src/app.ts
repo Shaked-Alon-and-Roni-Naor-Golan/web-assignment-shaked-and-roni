@@ -1,6 +1,8 @@
 import { authenticateToken } from "./middlewares/auth_middleware";
 import { swaggerOptions } from "./swagger/swagger_setup";
 
+import * as path from "path";
+const dotenv = require("dotenv");
 const morgan = require("morgan");
 const express = require("express");
 const crossOrigin = require("cors");
@@ -8,6 +10,8 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
+
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 const specs = swaggerJsdoc(swaggerOptions);
 const mongoUri = process.env.DB_CONNECT;

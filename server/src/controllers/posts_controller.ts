@@ -77,11 +77,6 @@ const updatePost = async (req: Request, res: Response) => {
     await uploadFile(req, res);
     const postId: string = req.params.postId;
 
-    console.log("=== UPDATE POST DEBUG ===");
-    console.log("Post ID:", postId);
-    console.log("Request body:", req.body);
-    console.log("User ID:", (req as any).user?._id);
-
     // Get existing post first
     const existingPost = await PostModel.findById(postId);
     if (!existingPost) {
@@ -90,8 +85,6 @@ const updatePost = async (req: Request, res: Response) => {
       }
       return res.status(404).send("Cannot find specified post");
     }
-
-    console.log("Existing post owner:", existingPost.owner.toString());
 
     let updatedFields: any = {};
     let hasContentChanges = false;
@@ -103,8 +96,6 @@ const updatePost = async (req: Request, res: Response) => {
     } else {
       parsedData = req.body;
     }
-
-    console.log("Parsed data:", parsedData);
 
     // Handle content update
     if (parsedData.content !== undefined) {
@@ -129,9 +120,6 @@ const updatePost = async (req: Request, res: Response) => {
       
       const isLiked = likedByIds.includes(userId);
       
-      console.log("Like toggle - userId:", userId, "isLiked:", isLiked);
-      console.log("Current likedBy array:", likedByIds);
-      
       if (isLiked) {
         // Remove the like - use $pull for atomic operation
         const result = await PostModel.findByIdAndUpdate(
@@ -143,7 +131,6 @@ const updatePost = async (req: Request, res: Response) => {
           .populate("likedBy", "-tokens -email -password")
           .populate({ path: "comments", populate: { path: "user" } });
         
-        console.log("After removing like, likedBy count:", result?.likedBy?.length);
         return res.status(200).send(result);
       } else {
         // Add the like - use $addToSet for atomic operation
@@ -156,16 +143,12 @@ const updatePost = async (req: Request, res: Response) => {
           .populate("likedBy", "-tokens -email -password")
           .populate({ path: "comments", populate: { path: "user" } });
         
-        console.log("After adding like, likedBy count:", result?.likedBy?.length);
         return res.status(200).send(result);
       }
     }
 
-    console.log("Has content changes:", hasContentChanges);
-
     // Only owner can edit content and photo (NOT for likes)
     if (hasContentChanges && existingPost.owner.toString() !== (req as any).user._id) {
-      console.log("FORBIDDEN: User is not owner");
       if (req.file?.filename) {
         deleteFile(req.file.filename);
       }

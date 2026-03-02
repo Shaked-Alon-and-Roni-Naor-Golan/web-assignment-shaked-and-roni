@@ -11,11 +11,14 @@ const getAllComments = async (req: Request, res: Response) => {
 
     if (userId) {
       comments = await CommentModel.find({ user: userId }).populate(
-        "post",
-        "user"
+        "user",
+        "-tokens -email -password"
       );
     } else {
-      comments = await CommentModel.find().populate("post", "user");
+      comments = await CommentModel.find().populate(
+        "user",
+        "-tokens -email -password"
+      );
     }
     res.send(comments);
   } catch (error) {
@@ -28,8 +31,8 @@ const getCommentById = async (req: Request, res: Response) => {
 
   try {
     const comment: Comment = await CommentModel.findById(commentId).populate(
-      "post",
-      "user"
+      "user",
+      "-tokens -email -password"
     );
     if (comment) {
       res.send(comment);

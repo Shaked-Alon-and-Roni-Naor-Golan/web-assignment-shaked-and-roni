@@ -58,7 +58,13 @@ const updateUser = async (req: Request, res: Response) => {
       return res.status(400).send("Username already exists");
     }
 
-    const currentUserPhoto = (await UserModel.findById(userId)).photo;
+    const currentUser = await UserModel.findById(userId);
+    if (!currentUser) {
+      req.file?.filename && deleteFile(req.file.filename);
+      return res.status(404).send("Cannot find specified user");
+    }
+
+    const currentUserPhoto = currentUser.photo;
 
     const updatedUser = await UserModel.findOneAndUpdate(
       { _id: userId },
