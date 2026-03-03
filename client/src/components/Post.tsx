@@ -83,6 +83,32 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
     setIsEditing(false);
   };
 
+  const ownerPhotoSrc = useMemo(() => {
+    const normalizePhoto = (value?: string | null) => {
+      if (typeof value !== "string") return null;
+      const clean = value.trim();
+      if (!clean || clean === "null" || clean === "undefined") return null;
+
+      if (
+        clean.startsWith("http://") ||
+        clean.startsWith("https://") ||
+        clean.startsWith("blob:") ||
+        clean.startsWith("data:")
+      ) {
+        return clean;
+      }
+
+      return `${IMAGES_URL}${clean}`;
+    };
+
+    const ownerPhoto = normalizePhoto(post.owner?.photo as string | null);
+
+    const currentUserPhoto =
+      user?._id === post.owner?._id ? normalizePhoto(user?.photo as string | null) : null;
+
+    return ownerPhoto || currentUserPhoto || "/temp-user.png";
+  }, [post.owner?._id, post.owner?.photo, user?._id, user?.photo]);
+
   return (
     <div
       className="post mb-3"
@@ -157,16 +183,14 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
           }}
         >
           <img
-            src={
-              post.owner?.photo
-                ? post.owner.photo.startsWith("http")
-                  ? post.owner.photo
-                  : IMAGES_URL + post.owner.photo
-                : "/temp-user.png"
-            }
+            src={ownerPhotoSrc}
             alt={post.owner?.username || "Unknown"}
             className="rounded-circle user-photo m-2"
             style={{ width: "30px", height: "30px" }}
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = "/temp-user.png";
+            }}
           />
           <span className="ml-3">
             <b>{post.owner?.username || "Unknown"}</b>
