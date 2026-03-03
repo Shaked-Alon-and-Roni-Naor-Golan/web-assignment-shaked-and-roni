@@ -107,7 +107,7 @@ const UserProfile = ({
               justifyContent: "center",
             }}
           >
-            <h2>Happy to see you {username}</h2>
+            <h2>Hi, {username}</h2>
             <p>
               <strong>Email:</strong> {email}
             </p>

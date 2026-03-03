@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { FaWandMagicSparkles } from "react-icons/fa6";
 import { enqueueSnackbar } from "notistack";
 import { enhanceReview } from "../services/ai";
+import { useState } from "react";
 
 const formSchema = z.object({
   content: z.string().min(1, "Description is required"),
@@ -33,6 +34,8 @@ interface PostFormProps {
 }
 
 const PostForm = ({ formData, onInputChange }: PostFormProps) => {
+  const [isEnhancing, setIsEnhancing] = useState(false);
+
   const {
     handleSubmit,
     formState: { errors },
@@ -47,9 +50,17 @@ const PostForm = ({ formData, onInputChange }: PostFormProps) => {
   const { user } = useUserContext() ?? {};
 
   const onEnhance = async () => {
-    const enhancedContent = await enhanceReview(formData.content);
-    setValue("content", enhancedContent);
-    onInputChange("content", enhancedContent);
+    try {
+      setIsEnhancing(true);
+      const enhancedContent = await enhanceReview(formData.content);
+      setValue("content", enhancedContent);
+      onInputChange("content", enhancedContent);
+    } catch (error) {
+      console.error("error enhancing text", error);
+      enqueueSnackbar("Failed to enhance text", { variant: "error" });
+    } finally {
+      setIsEnhancing(false);
+    }
   };
 
   const onSubmit = async ({ content, photo }: PostData) => {
@@ -75,6 +86,10 @@ const PostForm = ({ formData, onInputChange }: PostFormProps) => {
       }}
       onSubmit={handleSubmit(onSubmit)}
     >
+      <h2 style={{ textAlign: "center", marginBottom: "16px" }}>
+        Add your lovely movie!
+      </h2>
+
       <div>
         <div className="mb-3">
           <DropzoneComponent
@@ -96,23 +111,41 @@ const PostForm = ({ formData, onInputChange }: PostFormProps) => {
 
             marginBottom: "15px",
           }}
-        >
+        ><br/>
           <div style={{ justifyContent: "end", width: "85%" }}>
             <button
-              className="btn btn-success"
+              className="btn"
               onClick={onEnhance}
               type="button"
+              disabled={isEnhancing}
               style={{
                 marginBottom: "5px",
-                width: "20%",
                 display: "flex",
                 flexDirection: "row",
                 fontSize: "0.8rem",
                 alignItems: "center",
+                backgroundColor: "#87CEFA",
+                borderColor: "#87CEFA",
+                color: "#000000",
+                opacity: isEnhancing ? 0.8 : 1,
               }}
             >
-              <FaWandMagicSparkles size={12} style={{ marginRight: "5px" }} />
-              Enhance
+              {isEnhancing ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"
+                    style={{ marginRight: "8px" }}
+                  />
+                  Enhancing...
+                </>
+              ) : (
+                <>
+                  <FaWandMagicSparkles size={19} />
+                  Enhance Your Text
+                </>
+              )}
             </button>
           </div>
 
@@ -132,8 +165,13 @@ const PostForm = ({ formData, onInputChange }: PostFormProps) => {
       <div className="d-flex justify-content-center align-items-center mb-3">
         <button
           type="submit"
-          style={{ width: "85%" }}
-          className="btn btn-success"
+          style={{
+            width: "85%",
+            backgroundColor: "#87CEFA",
+            borderColor: "#87CEFA",
+            color: "#000000",
+          }}
+          className="btn"
         >
           Add Your Movie
         </button>

@@ -19,7 +19,6 @@ interface PostProps {
 const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [description, setDescription] = useState(post?.content || "");
-  const [isHovered, setIsHovered] = useState<boolean>(false);
   const [newPhoto, setNewPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -87,12 +86,6 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
   return (
     <div
       className="post mb-3"
-      onMouseEnter={() => {
-        setIsHovered(true);
-      }}
-      onMouseLeave={() => {
-        setIsHovered(false);
-      }}
       style={{
         width: "100%",
         position: "relative",
@@ -102,7 +95,7 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
         justifyContent: "center",
       }}
     >
-      {isHovered && user?._id === post.owner._id && (
+      {user?._id === post.owner._id && (
         <div
           className="edit-buttons"
           style={{
@@ -116,19 +109,35 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
           {showActionBar && !isEditing && isEditable && (
             <button
               className="btn btn-light"
-              style={{ border: "none", background: "transparent" }}
+              style={{
+                border: "none",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 0,
+              }}
               onClick={() => setIsEditing(true)}
             >
-              <MdEdit size={20} />
+              <MdEdit size={22} />
             </button>
           )}
           {deletePost && isEditable && (
             <button
               className="btn btn-light"
-              style={{ border: "none", background: "transparent" }}
+              style={{
+                border: "none",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 0,
+              }}
               onClick={deletePost}
             >
-              <MdDeleteForever size={30} />
+              <MdDeleteForever size={22} />
             </button>
           )}
         </div>
@@ -203,11 +212,10 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
                   top: "50%",
                   left: "50%",
                   transform: "translate(-50%, -50%)",
-                  backgroundColor: "rgba(0, 0, 0, 0.5)",
-                  color: "white",
+                  // color: "black",
                   padding: "10px 20px",
                   borderRadius: "5px",
-                  fontSize: "12px"
+                  fontSize: "15px"
                 }}
               >
                 Click to change image

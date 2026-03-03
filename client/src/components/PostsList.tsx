@@ -55,7 +55,7 @@ export const PostsList = ({ currentUser }: Props) => {
     <div
       style={{
         height: "100%",
-        backgroundColor: "#fcf1d9",
+        backgroundColor: "#fcd9f5ff",
         width: "600px",
         display: "flex",
         flexDirection: "column",
