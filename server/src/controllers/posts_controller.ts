@@ -59,7 +59,6 @@ const createPost = async (req: Request, res: Response) => {
     post.photoSrc = req.file.filename;
     const newPost = await PostModel.create(post);
     
-    // Populate the post before sending response
     const populatedPost = await PostModel.findById(newPost._id)
       .populate("owner", "-tokens -email -password")
       .populate("likedBy")
@@ -77,7 +76,6 @@ const updatePost = async (req: Request, res: Response) => {
     await uploadFile(req, res);
     const postId: string = req.params.postId;
 
-    // Get existing post first
     const existingPost = await PostModel.findById(postId);
     if (!existingPost) {
       if (req.file?.filename) {
@@ -89,7 +87,6 @@ const updatePost = async (req: Request, res: Response) => {
     let updatedFields: any = {};
     let hasContentChanges = false;
     
-    // Parse the request data
     let parsedData: any = {};
     if (req.body.updatedPostContent) {
       parsedData = JSON.parse(req.body.updatedPostContent);
@@ -97,13 +94,11 @@ const updatePost = async (req: Request, res: Response) => {
       parsedData = req.body;
     }
 
-    // Handle content update
     if (parsedData.content !== undefined) {
       updatedFields.content = parsedData.content;
       hasContentChanges = true;
     }
 
-    // Handle photo update
     if (req.file?.filename) {
       updatedFields.photoSrc = req.file.filename;
       hasContentChanges = true;
@@ -113,7 +108,6 @@ const updatePost = async (req: Request, res: Response) => {
     if (parsedData.userId !== undefined) {
       const userId = parsedData.userId;
       
-      // Filter out null/undefined values and convert to strings
       const likedByIds = (existingPost.likedBy || [])
         .filter((id: any) => id != null)
         .map((id: any) => id.toString());
