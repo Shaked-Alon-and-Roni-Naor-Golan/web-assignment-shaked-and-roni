@@ -1,7 +1,7 @@
 # web-assignment-shaked-and-roni
 
-This is a full-stack movies social web project with both client and server sides.
-The frontend (React client) lets users browse the feed, publish movie posts, like, comment, and manage their profile.
+This is a full-stack hotels social web project with both client and server sides.
+The frontend (React client) lets users browse the feed, publish hotel posts, like, comment, and manage their profile.
 This README focuses on the backend API (`server`) used by that client.
 
 ---
@@ -12,8 +12,8 @@ This README focuses on the backend API (`server`) used by that client.
   - Client side (React) for UI, pages, forms, and user interactions
   - Server side (Node.js + Express + MongoDB) for authentication, data, and API endpoints
 
-- Movie Posts
-  - Share a movie post with text and image
+- Hotel Posts
+  - Share a hotel post with text and image
   - View all posts feed with pagination
   - View a single post with owner, likes, and comments
   - View only a specific user's posts (`postOwner`) for profile page

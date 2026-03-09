@@ -74,8 +74,8 @@ describe("Comments API", () => {
 
     const post = await PostModel.create({
       owner: user._id,
-      content: "Movie thread",
-      photoSrc: "movie.jpg",
+      content: "Hotel thread",
+      photoSrc: "hotel.jpg",
       comments: [],
     });
 
@@ -86,12 +86,12 @@ describe("Comments API", () => {
         postId: post._id,
         comment: {
           user: user._id,
-          content: "Great movie!",
+          content: "Great hotel!",
         },
       });
 
     expect(res.statusCode).toBe(201);
-    expect(res.body.content).toBe("Great movie!");
+    expect(res.body.content).toBe("Great hotel!");
 
     const updatedPost = await PostModel.findById(post._id);
     expect((updatedPost?.comments || []).length).toBe(1);

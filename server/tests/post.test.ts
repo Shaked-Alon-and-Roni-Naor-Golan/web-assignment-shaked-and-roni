@@ -67,7 +67,7 @@ describe("Posts API", () => {
 
     await PostModel.create({
       owner: owner._id,
-      content: "A movie review",
+      content: "A hotel review",
       photoSrc: "poster.jpg",
     });
 
@@ -114,7 +114,7 @@ describe("Posts API", () => {
 
     const post = await PostModel.create({
       owner: owner._id,
-      content: "Likeable movie post",
+      content: "Likeable hotel post",
       photoSrc: "like.jpg",
       likedBy: [],
     });
