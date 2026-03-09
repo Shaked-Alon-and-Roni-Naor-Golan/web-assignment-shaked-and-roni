@@ -87,7 +87,7 @@ const PostForm = ({ formData, onInputChange }: PostFormProps) => {
       onSubmit={handleSubmit(onSubmit)}
     >
       <h2 style={{ textAlign: "center", marginBottom: "16px" }}>
-        Add your lovely movie!
+        Add your lovely hotel!
       </h2>
 
       <div>
@@ -173,7 +173,7 @@ const PostForm = ({ formData, onInputChange }: PostFormProps) => {
           }}
           className="btn"
         >
-          Add Your Movie
+          Add Your Hotel
         </button>
       </div>
     </form>

@@ -27,11 +27,11 @@ const Navbar = () => {
         <Link className="navbar-brand" to="/">
           <img
             src="/logo.png"
-            alt="MovieLand Logo"
+            alt="HotelLand Logo"
             className="logo m-2 rounded-circle"
             style={{ width: "30px", height: "30px" }}
           />
-          MovieLand
+          HotelLand
         </Link>
         <button
           className="navbar-toggler"
@@ -64,7 +64,7 @@ const Navbar = () => {
             </li>
             <li className="nav-item">
               <Link to="/add-post" className="nav-link">
-                Add Movie
+                Add Hotel
               </Link>
             </li>
             <li className="nav-item">
