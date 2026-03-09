@@ -50,7 +50,7 @@ const SignIn = () => {
       >
         <div className="text-center mb-2">
           <img
-            src="/src/assets/logo.png"
+            src="/logo.png"
             alt="HotelLand Logo"
             style={{ width: "150px", height: "150px" }}
           />
