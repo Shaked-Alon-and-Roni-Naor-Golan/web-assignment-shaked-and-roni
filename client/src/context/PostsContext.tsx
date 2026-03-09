@@ -1,7 +1,14 @@
 import { Post } from "../interfaces/post";
 import { getPosts, getPostById } from "../services/posts";
 import { ReactNode } from "react";
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 const buildPostsQuery = (
   ownerId?: string,
@@ -35,10 +42,12 @@ type PostsContextType = {
     ownerId,
     offset,
     searchQuery,
+    replace,
   }: {
     ownerId?: string;
     offset?: number;
     searchQuery?: string;
+    replace?: boolean;
   }) => Promise<void>;
 } | null;
 
@@ -49,6 +58,7 @@ export const usePostsContext = () => useContext(PostsContext);
 export const PostsContextProvider = ({ children }: { children: ReactNode }) => {
   const [posts, setPosts] = useState<Record<Post["_id"], Post>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const activeQueryKeyRef = useRef<string>("");
 
   const clearPosts = useCallback(() => {
     setPosts({});
@@ -71,11 +81,20 @@ export const PostsContextProvider = ({ children }: { children: ReactNode }) => {
     ownerId,
     offset,
     searchQuery,
+    replace,
   }: {
     ownerId?: string;
     offset?: number;
     searchQuery?: string;
+    replace?: boolean;
   }) => {
+    const currentOffset = offset ?? 0;
+    const queryKey = `${ownerId ?? ""}::${searchQuery?.trim() ?? ""}`;
+
+    if (replace || currentOffset === 0) {
+      activeQueryKeyRef.current = queryKey;
+    }
+
     try {
       setIsLoading(true);
       const postsMap: Record<Post["_id"], Post> = {};
@@ -85,7 +104,16 @@ export const PostsContextProvider = ({ children }: { children: ReactNode }) => {
       ).forEach((post) => {
         postsMap[post._id] = post;
       });
-      setPosts((prev) => ({ ...prev, ...postsMap }));
+
+      if (activeQueryKeyRef.current !== queryKey) {
+        return;
+      }
+
+      if (replace || currentOffset === 0) {
+        setPosts(postsMap);
+      } else {
+        setPosts((prev) => ({ ...prev, ...postsMap }));
+      }
     } catch (err) {
       console.error(err);
     } finally {

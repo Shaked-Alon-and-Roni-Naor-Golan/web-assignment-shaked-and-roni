@@ -6,6 +6,9 @@ export type Post = {
   owner: User;
   content: string;
   photoSrc: string;
+  city?: string;
+  pricePerNight?: number;
+  nights?: number;
   createdAt: Date;
   likedBy: User[];
   comments: Comment[];

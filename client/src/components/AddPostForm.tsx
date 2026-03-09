@@ -10,11 +10,19 @@ import { isEmpty } from "lodash";
 import { useNavigate } from "react-router-dom";
 import { FaWandMagicSparkles } from "react-icons/fa6";
 import { enqueueSnackbar } from "notistack";
-import { enhanceReview } from "../services/ai";
+// import { enhanceReview } from "../services/ai";
 import { useState } from "react";
 
 const formSchema = z.object({
   content: z.string().min(1, "Description is required"),
+  city: z.string().optional(),
+  pricePerNight: z.coerce
+    .number({ invalid_type_error: "Price per night is required" })
+    .positive("Price per night must be greater than 0"),
+  nights: z.coerce
+    .number({ invalid_type_error: "Nights is required" })
+    .int("Nights must be an integer")
+    .min(1, "Nights must be at least 1"),
   photo: z
     .any()
     .refine(
@@ -43,30 +51,43 @@ const PostForm = ({ formData, onInputChange }: PostFormProps) => {
     setValue,
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      content: formData.content,
+      city: formData.city,
+      pricePerNight: formData.pricePerNight ?? undefined,
+      nights: formData.nights ?? undefined,
+    },
   });
 
   const navigate = useNavigate();
 
   const { user } = useUserContext() ?? {};
 
-  const onEnhance = async () => {
-    try {
-      setIsEnhancing(true);
-      const enhancedContent = await enhanceReview(formData.content);
-      setValue("content", enhancedContent);
-      onInputChange("content", enhancedContent);
-    } catch (error) {
-      console.error("error enhancing text", error);
-      enqueueSnackbar("Failed to enhance text", { variant: "error" });
-    } finally {
-      setIsEnhancing(false);
-    }
-  };
+  // const onEnhance = async () => {
+  //   try {
+  //     setIsEnhancing(true);
+  //     const enhancedContent = await enhanceReview(formData.content);
+  //     setValue("content", enhancedContent);
+  //     onInputChange("content", enhancedContent);
+  //   } catch (error) {
+  //     console.error("error enhancing text", error);
+  //     enqueueSnackbar("Failed to enhance text", { variant: "error" });
+  //   } finally {
+  //     setIsEnhancing(false);
+  //   }
+  // };
 
-  const onSubmit = async ({ content, photo }: PostData) => {
+  const onSubmit = async ({ content, city, pricePerNight, nights, photo }: FormData) => {
     try {
       if (isEmpty(errors)) {
-        await createPost({ content, photo, owner: user!._id });
+        await createPost({
+          content,
+          photo,
+          city: city?.trim() || undefined,
+          pricePerNight,
+          nights,
+          owner: user!._id,
+        });
         navigate("/");
       }
     } catch (error) {
@@ -108,11 +129,11 @@ const PostForm = ({ formData, onInputChange }: PostFormProps) => {
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-
             marginBottom: "15px",
           }}
-        ><br/>
-          <div style={{ justifyContent: "end", width: "85%" }}>
+        >
+          <br />
+          {/* <div style={{ justifyContent: "end", width: "85%" }}>
             <button
               className="btn"
               onClick={onEnhance}
@@ -147,7 +168,42 @@ const PostForm = ({ formData, onInputChange }: PostFormProps) => {
                 </>
               )}
             </button>
-          </div>
+          </div> */}
+
+          <input
+            {...register("city")}
+            style={{ width: "85%", marginBottom: "8px" }}
+            placeholder="City (optional)"
+            value={formData.city}
+            onChange={(e) => onInputChange("city", e.target.value)}
+          />
+
+          <input
+            {...register("pricePerNight")}
+            style={{ width: "85%", marginBottom: "8px" }}
+            placeholder="Price per night"
+            type="number"
+            min={1}
+            value={formData.pricePerNight ?? ""}
+            onChange={(e) =>
+              onInputChange(
+                "pricePerNight",
+                e.target.value ? Number(e.target.value) : null
+              )
+            }
+          />
+
+          <input
+            {...register("nights")}
+            style={{ width: "85%", marginBottom: "8px" }}
+            placeholder="Number of nights"
+            type="number"
+            min={1}
+            value={formData.nights ?? ""}
+            onChange={(e) =>
+              onInputChange("nights", e.target.value ? Number(e.target.value) : null)
+            }
+          />
 
           <textarea
             {...register("content")}
@@ -156,6 +212,14 @@ const PostForm = ({ formData, onInputChange }: PostFormProps) => {
             onChange={(e) => onInputChange("content", e.target.value)}
           />
         </div>
+
+        {errors.pricePerNight && (
+          <p className="text-danger">{errors.pricePerNight.message}</p>
+        )}
+
+        {errors.nights && (
+          <p className="text-danger">{errors.nights.message}</p>
+        )}
 
         {errors.content && (
           <p className="text-danger">{errors.content.message}</p>

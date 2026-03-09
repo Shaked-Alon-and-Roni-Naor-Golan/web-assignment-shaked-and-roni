@@ -9,7 +9,7 @@ type Props = {
 
 export const PostsList = ({ currentUser, searchQuery }: Props) => {
   const [, setCurrentOffset] = useState<number>(0);
-  const { posts, fetchPosts, isLoading, clearPosts } = usePostsContext() ?? {};
+  const { posts, fetchPosts, isLoading } = usePostsContext() ?? {};
 
   const reFetch = useCallback(
     (offset: number) => {
@@ -24,9 +24,8 @@ export const PostsList = ({ currentUser, searchQuery }: Props) => {
 
   useEffect(() => {
     setCurrentOffset(0);
-    clearPosts?.();
-    fetchPosts?.({ ownerId: currentUser, offset: 0, searchQuery });
-  }, [clearPosts, currentUser, fetchPosts, searchQuery]);
+    fetchPosts?.({ ownerId: currentUser, offset: 0, searchQuery, replace: true });
+  }, [currentUser, fetchPosts, searchQuery]);
 
   const loaderRef = useRef(null);
 

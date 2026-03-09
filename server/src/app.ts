@@ -29,6 +29,12 @@ const appPromise: Promise<any> = new Promise((resolve, reject) => {
       console.log("Connected to database successfully");
       const app = express();
 
+      app.use((req, res, next) => {
+        res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+        res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
+        next();
+      });
+
       app.use(crossOrigin({ origin: "*" }));
       app.use(morgan("dev"));
       app.use(express.static("public"));

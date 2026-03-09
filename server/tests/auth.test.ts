@@ -20,12 +20,28 @@ const uniqueCreds = () => {
 };
 
 describe("Auth API", () => {
+  const createdUserIds = new Set<string>();
+
+  const trackCreatedUser = async (user: {
+    username: string;
+    email: string;
+    password: string;
+    tokens?: string[];
+  }) => {
+    const created = await UserModel.create(user);
+    createdUserIds.add(created._id.toString());
+    return created;
+  };
+
   beforeAll(async () => {
     await app;
   });
 
   afterEach(async () => {
-    await UserModel.deleteMany({ email: { $regex: /@test\.com$/ } });
+    if (createdUserIds.size > 0) {
+      await UserModel.deleteMany({ _id: { $in: Array.from(createdUserIds) } });
+      createdUserIds.clear();
+    }
   });
 
   afterAll(async () => {
@@ -45,6 +61,9 @@ describe("Auth API", () => {
     expect(res.body).toHaveProperty("user");
 
     const dbUser = await UserModel.findOne({ email: user.email });
+    if (dbUser?._id) {
+      createdUserIds.add(dbUser._id.toString());
+    }
     expect(dbUser).not.toBeNull();
     expect((dbUser as any).password).not.toBe(user.password);
   });
@@ -54,7 +73,7 @@ describe("Auth API", () => {
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(user.password, salt);
 
-    await UserModel.create({ ...user, password: hashedPassword, tokens: [] });
+    await trackCreatedUser({ ...user, password: hashedPassword, tokens: [] });
 
     const res = await request(await app)
       .post("/auth/login")
@@ -83,7 +102,7 @@ describe("Auth API", () => {
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(user.password, salt);
 
-    await UserModel.create({ ...user, password: hashedPassword, tokens: [] });
+    await trackCreatedUser({ ...user, password: hashedPassword, tokens: [] });
 
     const loginRes = await request(await app)
       .post("/auth/login")
@@ -105,7 +124,7 @@ describe("Auth API", () => {
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(user.password, salt);
 
-    await UserModel.create({ ...user, password: hashedPassword, tokens: [] });
+    await trackCreatedUser({ ...user, password: hashedPassword, tokens: [] });
 
     const loginRes = await request(await app)
       .post("/auth/login")
@@ -128,7 +147,7 @@ describe("Auth API", () => {
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(user.password, salt);
 
-    const dbUser = await UserModel.create({ ...user, password: hashedPassword, tokens: [] });
+    const dbUser = await trackCreatedUser({ ...user, password: hashedPassword, tokens: [] });
 
     const loginRes = await request(await app)
       .post("/auth/login")
