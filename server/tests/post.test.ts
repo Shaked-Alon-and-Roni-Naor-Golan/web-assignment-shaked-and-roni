@@ -8,6 +8,7 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { UserModel } from "../src/models/user_model";
 import { PostModel } from "../src/models/posts_model";
+import queryParserService from "../src/services/query_parser_service";
 
 type DbUser = {
   _id: string;
@@ -46,6 +47,7 @@ describe("Posts API", () => {
   });
 
   afterEach(async () => {
+    jest.restoreAllMocks();
     await PostModel.deleteMany({});
     await UserModel.deleteMany({ email: { $regex: /@test\.com$/ } });
   });
@@ -104,6 +106,39 @@ describe("Posts API", () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.length).toBe(1);
     expect(res.body[0].owner._id).toBe(owner._id);
+  });
+
+  test("GET /posts?q filters posts by parsed keywords", async () => {
+    const owner = await createUser("owner_search");
+    const token = tokenFor(owner);
+
+    jest.spyOn(queryParserService, "parsePostQuery").mockResolvedValueOnce({
+      keywords: ["tel aviv"],
+      city: "tel aviv",
+      searchType: "combined",
+      confidence: 0.9,
+      originalQuery: "hotels in tel aviv",
+    });
+
+    await PostModel.create({
+      owner: owner._id,
+      content: "Amazing boutique hotel in Tel Aviv near the beach",
+      photoSrc: "ta.jpg",
+    });
+
+    await PostModel.create({
+      owner: owner._id,
+      content: "Great cabin in the Golan",
+      photoSrc: "golan.jpg",
+    });
+
+    const res = await request(await app)
+      .get("/posts?q=hotels%20in%20tel%20aviv")
+      .set("authorization", `Bearer ${token}`);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.length).toBe(1);
+    expect(res.body[0].content).toContain("Tel Aviv");
   });
 
   test("PUT /posts/:postId toggles like for user", async () => {

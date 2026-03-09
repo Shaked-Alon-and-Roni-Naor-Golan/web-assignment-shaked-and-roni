@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { User } from "../interfaces/user";
 import { getMe } from "../services/users";
 import { getToken } from "../services/auth";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 
 type UserContextType = {
   user: User | null;
@@ -21,27 +21,30 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchAuth = async () => await getToken();
 
+  const getUser = useCallback(async () => {
+    try {
+      setLoadingUser(true);
+      const token = await fetchAuth();
+      if (token) {
+        setUser(await getMe());
+      } else {
+        setUser(null);
+      }
+    } catch (err) {
+      console.error(err);
+      setUser(null);
+    } finally {
+      setLoadingUser(false);
+    }
+  }, []);
+
   const refetchUser = async () => {
     getUser();
   };
 
   useEffect(() => {
     getUser();
-  }, []);
-
-  const getUser = async () => {
-    try {
-      setLoadingUser(true);
-      const token = await fetchAuth();
-      if (token) {
-        setUser(await getMe());
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoadingUser(false);
-    }
-  };
+  }, [getUser]);
   return (
     <UserContext.Provider
       value={{

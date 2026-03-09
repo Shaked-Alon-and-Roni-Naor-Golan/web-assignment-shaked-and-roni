@@ -123,6 +123,28 @@ describe("Auth API", () => {
     expect(dbUser?.tokens || []).not.toContain(refreshToken);
   });
 
+  test("POST /auth/logout succeeds even if user was deleted", async () => {
+    const user = uniqueCreds();
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(user.password, salt);
+
+    const dbUser = await UserModel.create({ ...user, password: hashedPassword, tokens: [] });
+
+    const loginRes = await request(await app)
+      .post("/auth/login")
+      .send({ username: user.username, password: user.password });
+
+    const refreshToken = loginRes.body.refreshToken.token;
+
+    await UserModel.findByIdAndDelete(dbUser._id);
+
+    const logoutRes = await request(await app)
+      .post("/auth/logout")
+      .set("authorization", `Bearer ${refreshToken}`);
+
+    expect(logoutRes.statusCode).toBe(200);
+  });
+
   test("POST /auth/logout without token returns 401", async () => {
     const res = await request(await app).post("/auth/logout");
 

@@ -1,20 +1,18 @@
 import { authLogout } from "../services/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { useUserContext } from "../context/UserContext";
-import { enqueueSnackbar } from "notistack";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const { setUser } = useUserContext() ?? {};
 
   const handleLogout = async () => {
+    await authLogout();
     try {
-      await authLogout();
       setUser?.(null);
       navigate("/");
     } catch (err) {
-      console.error(err);
-      enqueueSnackbar("Failed to logout", { variant: "error" });
+      console.error("Failed to finalize local logout", err);
     }
   };
 

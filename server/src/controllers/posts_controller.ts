@@ -3,30 +3,20 @@ import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { deleteFile, uploadFile } from "../utils/multer";
 import { PostModel } from "../models/posts_model";
+import postSearchService from "../services/post_search_service";
 
 const getAllPosts = async (req: Request, res: Response) => {
   try {
     const postOwner: string = String(req.query.postOwner ?? "");
     const offset: number = Number(req.query.offset ?? "0");
-    let posts: Post[];
+    const q: string = String(req.query.q ?? "");
 
-    if (postOwner) {
-      posts = await PostModel.find({ owner: postOwner })
-        .sort({ createdAt: -1 })
-        .skip(offset)
-        .limit(3)
-        .populate("owner", "-tokens -email -password")
-        .populate("likedBy")
-        .populate({ path: "comments", populate: { path: "user" } });
-    } else {
-      posts = await PostModel.find()
-        .sort({ createdAt: -1 })
-        .skip(offset)
-        .limit(3)
-        .populate("owner", "-tokens -email -password")
-        .populate("likedBy")
-        .populate({ path: "comments", populate: { path: "user" } });
-    }
+    const posts: Post[] = await postSearchService.searchPosts({
+      query: q,
+      ownerId: postOwner,
+      offset,
+      limit: 3,
+    });
 
     res.send(posts);
   } catch (error) {

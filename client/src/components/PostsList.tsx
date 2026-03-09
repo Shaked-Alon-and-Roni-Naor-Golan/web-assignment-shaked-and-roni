@@ -1,40 +1,52 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import PostComponent from "./Post";
 import { usePostsContext } from "../context/PostsContext";
 
 type Props = {
   currentUser?: string;
+  searchQuery?: string;
 };
 
-export const PostsList = ({ currentUser }: Props) => {
-  const [currentOffset, setCurrentOffset] = useState<number>(0);
+export const PostsList = ({ currentUser, searchQuery }: Props) => {
+  const [, setCurrentOffset] = useState<number>(0);
   const { posts, fetchPosts, isLoading, clearPosts } = usePostsContext() ?? {};
 
-  const reFetch = useCallback((offset: number) => {
-    fetchPosts?.({ offset, ownerId: currentUser });
-  }, []);
+  const reFetch = useCallback(
+    (offset: number) => {
+      fetchPosts?.({
+        offset,
+        ownerId: currentUser,
+        searchQuery,
+      });
+    },
+    [currentUser, fetchPosts, searchQuery]
+  );
 
   useEffect(() => {
+    setCurrentOffset(0);
     clearPosts?.();
-    fetchPosts?.({ ownerId: currentUser });
-  }, []);
+    fetchPosts?.({ ownerId: currentUser, offset: 0, searchQuery });
+  }, [clearPosts, currentUser, fetchPosts, searchQuery]);
 
   const loaderRef = useRef(null);
 
-  const increaseOffset = () => {
-    if (currentOffset <= Object.values(posts ?? {}).length) {
-      setCurrentOffset((prev) => {
-        reFetch(prev + 3);
-        return prev + 3;
-      });
-    }
-  };
+  const increaseOffset = useCallback(() => {
+    setCurrentOffset((prev) => {
+      if (prev <= Object.values(posts ?? {}).length) {
+        const nextOffset = prev + 3;
+        reFetch(nextOffset);
+        return nextOffset;
+      }
+
+      return prev;
+    });
+  }, [posts, reFetch]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          if (Object.values(posts ?? {}).length > 0) {
+          if (!isLoading && Object.values(posts ?? {}).length > 0) {
             increaseOffset();
           }
         }
@@ -42,14 +54,18 @@ export const PostsList = ({ currentUser }: Props) => {
       { root: null, rootMargin: "150px", threshold: 1.0 }
     );
 
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current);
+    const currentLoader = loaderRef.current;
+
+    if (currentLoader) {
+      observer.observe(currentLoader);
     }
 
     return () => {
-      if (loaderRef.current) observer.unobserve(loaderRef.current);
+      if (currentLoader) {
+        observer.unobserve(currentLoader);
+      }
     };
-  }, [posts]);
+  }, [increaseOffset, isLoading, posts]);
 
   return (
     <div
@@ -91,7 +107,11 @@ export const PostsList = ({ currentUser }: Props) => {
                 ))
               ) : (
                 <div>
-                  <p>No posts available.</p>
+                  <p>
+                    {searchQuery
+                      ? "No posts match your search."
+                      : "No posts available."}
+                  </p>
                 </div>
               )}
             </div>

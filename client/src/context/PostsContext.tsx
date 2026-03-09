@@ -1,23 +1,28 @@
 import { Post } from "../interfaces/post";
 import { getPosts, getPostById } from "../services/posts";
 import { ReactNode } from "react";
-import { createContext, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
-const buildPostsQuery = (ownerId?: string, offset?: number) => {
-  if (!ownerId && !offset) {
-    return "";
-  } else {
-    let query = "?";
-    if (ownerId) {
-      query += `postOwner=${ownerId}`;
-    }
-    if (offset) {
-      query += `${
-        query.endsWith("?") ? `offset=${offset}` : `&offset=${offset}`
-      }`;
-    }
-    return query;
+const buildPostsQuery = (
+  ownerId?: string,
+  offset?: number,
+  searchQuery?: string
+) => {
+  const params = new URLSearchParams();
+
+  if (ownerId) {
+    params.set("postOwner", ownerId);
   }
+
+  if (typeof offset === "number") {
+    params.set("offset", String(offset));
+  }
+
+  if (searchQuery?.trim()) {
+    params.set("q", searchQuery.trim());
+  }
+
+  return params.toString() ? `?${params.toString()}` : "";
 };
 
 type PostsContextType = {
@@ -29,9 +34,11 @@ type PostsContextType = {
   fetchPosts: ({
     ownerId,
     offset,
+    searchQuery,
   }: {
     ownerId?: string;
     offset?: number;
+    searchQuery?: string;
   }) => Promise<void>;
 } | null;
 
@@ -43,11 +50,11 @@ export const PostsContextProvider = ({ children }: { children: ReactNode }) => {
   const [posts, setPosts] = useState<Record<Post["_id"], Post>>({});
   const [isLoading, setIsLoading] = useState(true);
 
-  const clearPosts = () => {
+  const clearPosts = useCallback(() => {
     setPosts({});
-  };
+  }, []);
 
-  const fetchPostById = async (postId: string) => {
+  const fetchPostById = useCallback(async (postId: string) => {
     try {
       setIsLoading(true);
 
@@ -58,20 +65,24 @@ export const PostsContextProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const fetchPosts = async ({
+  const fetchPosts = useCallback(async ({
     ownerId,
     offset,
+    searchQuery,
   }: {
     ownerId?: string;
     offset?: number;
+    searchQuery?: string;
   }) => {
     try {
       setIsLoading(true);
       const postsMap: Record<Post["_id"], Post> = {};
 
-      (await getPosts(buildPostsQuery(ownerId, offset))).forEach((post) => {
+      (
+        await getPosts(buildPostsQuery(ownerId, offset, searchQuery))
+      ).forEach((post) => {
         postsMap[post._id] = post;
       });
       setPosts((prev) => ({ ...prev, ...postsMap }));
@@ -80,19 +91,22 @@ export const PostsContextProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  const contextValue = useMemo(
+    () => ({
+      posts,
+      setPosts,
+      isLoading,
+      fetchPosts,
+      clearPosts,
+      fetchPostById,
+    }),
+    [posts, isLoading, fetchPosts, clearPosts, fetchPostById]
+  );
 
   return (
-    <PostsContext.Provider
-      value={{
-        posts,
-        setPosts,
-        isLoading,
-        fetchPosts,
-        clearPosts,
-        fetchPostById,
-      }}
-    >
+    <PostsContext.Provider value={contextValue}>
       {children}
     </PostsContext.Provider>
   );
