@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon server.ts",
     "start": "tsc && node dist/server.js",
-    "test": "jest --detectOpenHandles --runInBand --coverage --forceExit"
+    "test": "jest --detectOpenHandles --runInBand --coverage --forceExit",
+    "backfill:post-search-fields": "ts-node src/scripts/backfill_post_search_fields.ts"
   },
   "author": "Colman",
   "license": "ISC",

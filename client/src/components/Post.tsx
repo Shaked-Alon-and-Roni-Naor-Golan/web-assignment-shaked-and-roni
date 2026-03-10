@@ -10,6 +10,21 @@ import { useUserContext } from "../context/UserContext";
 import { usePostsContext } from "../context/PostsContext";
 import { deletePostById, updatePost } from "../services/posts";
 
+const errorDetails = (error: unknown) => {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error &&
+    typeof (error as { response?: unknown }).response === "object" &&
+    (error as { response?: unknown }).response !== null &&
+    "data" in ((error as { response?: { data?: unknown } }).response as object)
+  ) {
+    return (error as { response?: { data?: unknown } }).response?.data;
+  }
+
+  return undefined;
+};
+
 interface PostProps {
   post: Post;
   isEditable?: boolean;
@@ -26,10 +41,6 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
   const { user } = useUserContext() ?? {};
   const { setPosts, posts } = usePostsContext() ?? {};
   const navigate = useNavigate();
-
-  if (!post) {
-    return null;
-  }
 
   const onEditSave = async () => {
     const updatedPostData = await updatePost(post._id, { content: description, photo: newPhoto ?? undefined });
@@ -69,7 +80,7 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
       }
     } catch (error) {
       console.error("Error toggling like:", error);
-      console.error("Error details:", error.response?.data);
+      console.error("Error details:", errorDetails(error));
     }
   };
 
@@ -121,7 +132,7 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
         justifyContent: "center",
       }}
     >
-      {user?._id === post.owner._id && (
+      {user?._id === post.owner?._id && (
         <div
           className="edit-buttons"
           style={{
@@ -281,6 +292,29 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
             className="hover-shadow"
           >
             <p className="text-center">{description}</p>
+            <div
+              style={{
+                width: "100%",
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                gap: "10px",
+                marginBottom: "8px",
+                fontSize: "0.9rem",
+              }}
+            >
+              {post.city && (
+                <span className="badge text-bg-light">City: {post.city}</span>
+              )}
+              {typeof post.pricePerNight === "number" && (
+                <span className="badge text-bg-light">
+                  Price/Night: ₪{post.pricePerNight}
+                </span>
+              )}
+              {typeof post.nights === "number" && (
+                <span className="badge text-bg-light">Nights: {post.nights}</span>
+              )}
+            </div>
             <img
               src={IMAGES_URL + post.photoSrc}
               alt="Post"

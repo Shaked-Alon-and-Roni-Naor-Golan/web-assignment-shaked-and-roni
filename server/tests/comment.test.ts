@@ -55,14 +55,46 @@ const createUser = async (
 };
 
 describe("Comments API", () => {
+  const createdUserIds = new Set<string>();
+  const createdPostIds = new Set<string>();
+  const createdCommentIds = new Set<string>();
+
+  const trackPost = async (post: {
+    owner: string;
+    content: string;
+    photoSrc?: string;
+    comments?: string[];
+  }) => {
+    const created = await PostModel.create(post);
+    createdPostIds.add(created._id.toString());
+    return created;
+  };
+
+  const trackComment = async (comment: { user: string; content: string }) => {
+    const created = await CommentModel.create(comment);
+    createdCommentIds.add(created._id.toString());
+    return created;
+  };
+
   beforeAll(async () => {
     await app;
   });
 
   afterEach(async () => {
-    await CommentModel.deleteMany({});
-    await PostModel.deleteMany({});
-    await UserModel.deleteMany({ email: { $regex: /@test\.com$/ } });
+    if (createdCommentIds.size > 0) {
+      await CommentModel.deleteMany({ _id: { $in: Array.from(createdCommentIds) } });
+      createdCommentIds.clear();
+    }
+
+    if (createdPostIds.size > 0) {
+      await PostModel.deleteMany({ _id: { $in: Array.from(createdPostIds) } });
+      createdPostIds.clear();
+    }
+
+    if (createdUserIds.size > 0) {
+      await UserModel.deleteMany({ _id: { $in: Array.from(createdUserIds) } });
+      createdUserIds.clear();
+    }
   });
 
   afterAll(async () => {
@@ -71,11 +103,12 @@ describe("Comments API", () => {
 
   test("POST /comments creates comment and links it to post", async () => {
     const { user, token } = await createUser("comment_user");
+    createdUserIds.add(user._id);
 
-    const post = await PostModel.create({
+    const post = await trackPost({
       owner: user._id,
-      content: "Movie thread",
-      photoSrc: "movie.jpg",
+      content: "Hotel thread",
+      photoSrc: "hotel.jpg",
       comments: [],
     });
 
@@ -86,12 +119,12 @@ describe("Comments API", () => {
         postId: post._id,
         comment: {
           user: user._id,
-          content: "Great movie!",
+          content: "Great hotel!",
         },
       });
 
     expect(res.statusCode).toBe(201);
-    expect(res.body.content).toBe("Great movie!");
+    expect(res.body.content).toBe("Great hotel!");
 
     const updatedPost = await PostModel.findById(post._id);
     expect((updatedPost?.comments || []).length).toBe(1);
@@ -99,8 +132,9 @@ describe("Comments API", () => {
 
   test("GET /comments returns list", async () => {
     const { user, token } = await createUser("comments_get");
+    createdUserIds.add(user._id);
 
-    await CommentModel.create({ user: user._id, content: "one" });
+    await trackComment({ user: user._id, content: "one" });
 
     const res = await request(await app)
       .get("/comments")
@@ -114,9 +148,11 @@ describe("Comments API", () => {
   test("GET /comments?user filters by user", async () => {
     const { user: userA, token } = await createUser("comments_a");
     const { user: userB } = await createUser("comments_b");
+    createdUserIds.add(userA._id);
+    createdUserIds.add(userB._id);
 
-    await CommentModel.create({ user: userA._id, content: "A" });
-    await CommentModel.create({ user: userB._id, content: "B" });
+    await trackComment({ user: userA._id, content: "A" });
+    await trackComment({ user: userB._id, content: "B" });
 
     const res = await request(await app)
       .get(`/comments?user=${userA._id}`)
@@ -128,8 +164,9 @@ describe("Comments API", () => {
 
   test("PUT /comments/:commentId updates comment", async () => {
     const { user, token } = await createUser("comments_update");
+    createdUserIds.add(user._id);
 
-    const comment = await CommentModel.create({
+    const comment = await trackComment({
       user: user._id,
       content: "old",
     });
@@ -147,8 +184,9 @@ describe("Comments API", () => {
 
   test("DELETE /comments/:commentId deletes comment", async () => {
     const { user, token } = await createUser("comments_delete");
+    createdUserIds.add(user._id);
 
-    const comment = await CommentModel.create({
+    const comment = await trackComment({
       user: user._id,
       content: "bye",
     });
@@ -164,7 +202,8 @@ describe("Comments API", () => {
   });
 
   test("GET /comments/:commentId returns 404 for missing comment", async () => {
-    const { token } = await createUser("comments_missing");
+    const { user, token } = await createUser("comments_missing");
+    createdUserIds.add(user._id);
     const fakeId = new mongoose.Types.ObjectId();
 
     const res = await request(await app)

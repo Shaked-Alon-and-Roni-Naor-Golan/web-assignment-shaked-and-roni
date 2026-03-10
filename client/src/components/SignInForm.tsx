@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SignInData } from "../pages/SignIn";
 import { login } from "../services/auth";
 import { useUserContext } from "../context/UserContext";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { isEmpty } from "lodash";
 
 type SignInFormProps = {

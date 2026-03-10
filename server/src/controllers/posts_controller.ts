@@ -3,30 +3,44 @@ import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { deleteFile, uploadFile } from "../utils/multer";
 import { PostModel } from "../models/posts_model";
+import postSearchService from "../services/post_search_service";
+
+const normalizeOptionalText = (value: unknown) => {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+
+  const normalized = String(value).trim();
+  return normalized.length > 0 ? normalized : undefined;
+};
+
+const normalizeOptionalNumber = (value: unknown) => {
+  if (value === undefined || value === null || value === "") {
+    return undefined;
+  }
+
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
 
 const getAllPosts = async (req: Request, res: Response) => {
   try {
     const postOwner: string = String(req.query.postOwner ?? "");
     const offset: number = Number(req.query.offset ?? "0");
-    let posts: Post[];
+    const q: string = String(req.query.q ?? "");
 
-    if (postOwner) {
-      posts = await PostModel.find({ owner: postOwner })
-        .sort({ createdAt: -1 })
-        .skip(offset)
-        .limit(3)
-        .populate("owner", "-tokens -email -password")
-        .populate("likedBy")
-        .populate({ path: "comments", populate: { path: "user" } });
-    } else {
-      posts = await PostModel.find()
-        .sort({ createdAt: -1 })
-        .skip(offset)
-        .limit(3)
-        .populate("owner", "-tokens -email -password")
-        .populate("likedBy")
-        .populate({ path: "comments", populate: { path: "user" } });
-    }
+    console.log("[PostsController] GET /posts", {
+      postOwner,
+      offset,
+      q,
+    });
+
+    const posts: Post[] = await postSearchService.searchPosts({
+      query: q,
+      ownerId: postOwner,
+      offset,
+      limit: 3,
+    });
 
     res.send(posts);
   } catch (error) {
@@ -57,6 +71,19 @@ const createPost = async (req: Request, res: Response) => {
     await uploadFile(req, res);
     const post: Post = JSON.parse(req.body.post);
     post.photoSrc = req.file.filename;
+    post.city = normalizeOptionalText(post.city);
+
+    const pricePerNight = normalizeOptionalNumber(post.pricePerNight);
+    const nights = normalizeOptionalNumber(post.nights);
+
+    if (pricePerNight !== undefined) {
+      post.pricePerNight = pricePerNight;
+    }
+
+    if (nights !== undefined) {
+      post.nights = nights;
+    }
+
     const newPost = await PostModel.create(post);
     
     const populatedPost = await PostModel.findById(newPost._id)
@@ -96,6 +123,23 @@ const updatePost = async (req: Request, res: Response) => {
 
     if (parsedData.content !== undefined) {
       updatedFields.content = parsedData.content;
+      hasContentChanges = true;
+    }
+
+    if (parsedData.city !== undefined) {
+      updatedFields.city = normalizeOptionalText(parsedData.city);
+      hasContentChanges = true;
+    }
+
+    if (parsedData.pricePerNight !== undefined) {
+      updatedFields.pricePerNight = normalizeOptionalNumber(
+        parsedData.pricePerNight
+      );
+      hasContentChanges = true;
+    }
+
+    if (parsedData.nights !== undefined) {
+      updatedFields.nights = normalizeOptionalNumber(parsedData.nights);
       hasContentChanges = true;
     }
 

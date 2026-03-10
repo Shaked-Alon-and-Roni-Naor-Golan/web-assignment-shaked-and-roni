@@ -100,11 +100,13 @@ export const logout = (req: Request, res: Response) => {
       const userId = userInfo._id;
       try {
         const user = await UserModel.findById(userId);
-        if (user == null) return res.status(403).send("Unauthorized");
+        if (user == null) {
+          return res.status(200).send("Logged out successfully");
+        }
         if (!user.tokens.includes(refreshToken)) {
           user.tokens = [];
           await user.save();
-          return res.status(403).send("Unauthorized");
+          return res.status(200).send("Logged out successfully");
         }
         user.tokens = user.tokens.filter((token) => token !== refreshToken);
         await user.save();

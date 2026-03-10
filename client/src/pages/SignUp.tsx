@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import SignUpForm from "../components/SignUpForm";
 
 export type SignUpData = {
@@ -34,12 +34,12 @@ const SignUp = () => {
       >
         <div className="text-center mb-2">
           <img
-            src="/src/assets/logo.png"
-            alt="MovieLand Logo"
+            src="/logo.png"
+            alt="HotelLand Logo"
             style={{ width: "150px", height: "150px" }}
           />
-          <h4 className="mt-2">MovieLand</h4>
-          <p className="text-muted">Live in a movie? sign up!</p>
+          <h4 className="mt-2">HotelLand</h4>
+          <p className="text-muted">Join our HotelLand! Sign up now!</p>
         </div>
         <SignUpForm formData={formData} onInputChange={handleInputChange} />
         <p className="text-center mt-3">

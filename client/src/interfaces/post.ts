@@ -6,6 +6,9 @@ export interface Post {
   owner: User;
   photoSrc: string;
   content: string;
+  city?: string;
+  pricePerNight?: number;
+  nights?: number;
   likedBy: User[];
   comments: PostComment[];
 }
@@ -13,11 +16,17 @@ export interface Post {
 export interface CreatePostPayload {
   owner: string;
   content: string;
+  city?: string;
+  pricePerNight?: number;
+  nights?: number;
   photo?: File | null;
 }
 
 export interface UpdatePostPayload {
   content?: string;
+  city?: string;
+  pricePerNight?: number;
+  nights?: number;
   photo?: File | null;
   likedBy?: User[];
   userId?: string;
