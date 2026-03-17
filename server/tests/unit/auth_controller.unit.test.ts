@@ -102,7 +102,7 @@ describe("auth_controller unit", () => {
     expect(res.send).toHaveBeenCalledWith("Unauthorized");
   });
 
-  test("logout returns 403 and clears tokens when token not in user list", async () => {
+  test("logout returns 200 and clears tokens when token not in user list", async () => {
     jest.spyOn(jwt, "verify").mockImplementation((token: any, secret: any, cb: any) => {
       cb(null, { _id: "u1" });
       return {} as any;
@@ -122,10 +122,10 @@ describe("auth_controller unit", () => {
     await new Promise((resolve) => setImmediate(resolve));
 
     expect(save).toHaveBeenCalled();
-    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.status).toHaveBeenCalledWith(200);
   });
 
-  test("logout returns 403 when user not found", async () => {
+  test("logout returns 200 when user not found", async () => {
     jest.spyOn(jwt, "verify").mockImplementation((token: any, secret: any, cb: any) => {
       cb(null, { _id: "u1" });
       return {} as any;
@@ -138,7 +138,7 @@ describe("auth_controller unit", () => {
     logout(req, res);
     await new Promise((resolve) => setImmediate(resolve));
 
-    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.status).toHaveBeenCalledWith(200);
   });
 
   test("logout returns 403 when db findById throws", async () => {

@@ -50,12 +50,12 @@ const SignIn = () => {
       >
         <div className="text-center mb-2">
           <img
-            src="/src/assets/logo.png"
-            alt="MovieLand Logo"
+            src="/logo.png"
+            alt="HotelLand Logo"
             style={{ width: "150px", height: "150px" }}
           />
-          <h4 className="mt-2">MovieLand</h4>
-          <p className="text-muted">Wanna watch a movie? Just sign in!</p>
+          <h4 className="mt-2">HotelLand</h4>
+          <p className="text-muted">Wanna see our hotels? Just sign in!</p>
         </div>
         <SignInForm formData={formData} onInputChange={handleInputChange} />
         <div className="mt-2 px-7">

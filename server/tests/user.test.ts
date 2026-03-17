@@ -52,12 +52,17 @@ const createUser = async (): Promise<{ user: DbUser; token: string }> => {
 };
 
 describe("Users API", () => {
+  const createdUserIds = new Set<string>();
+
   beforeAll(async () => {
     await app;
   });
 
   afterEach(async () => {
-    await UserModel.deleteMany({ email: { $regex: /@test\.com$/ } });
+    if (createdUserIds.size > 0) {
+      await UserModel.deleteMany({ _id: { $in: Array.from(createdUserIds) } });
+      createdUserIds.clear();
+    }
   });
 
   afterAll(async () => {
@@ -73,6 +78,7 @@ describe("Users API", () => {
 
   test("GET /users/me with token returns current user payload", async () => {
     const { user, token } = await createUser();
+    createdUserIds.add(user._id);
 
     const res = await request(await app)
       .get("/users/me")
@@ -86,6 +92,7 @@ describe("Users API", () => {
 
   test("PUT /users/:userId updates username", async () => {
     const { user, token } = await createUser();
+    createdUserIds.add(user._id);
 
     const res = await request(await app)
       .put(`/users/${user._id}`)
@@ -100,7 +107,8 @@ describe("Users API", () => {
   });
 
   test("PUT /users/:userId returns 404 for non-existing user", async () => {
-    const { token } = await createUser();
+    const { user, token } = await createUser();
+    createdUserIds.add(user._id);
 
     const fakeId = "507f1f77bcf86cd799439011";
 

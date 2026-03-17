@@ -3,12 +3,18 @@ import PostForm from "../components/AddPostForm";
 
 export interface PostData {
   content: string;
+  city: string;
+  pricePerNight: number | null;
+  nights: number | null;
   photo?: File | null;
 }
 
 const AddPost = () => {
   const [formData, setFormData] = useState<PostData>({
     content: "",
+    city: "",
+    pricePerNight: null,
+    nights: null,
     photo: null,
   });
 

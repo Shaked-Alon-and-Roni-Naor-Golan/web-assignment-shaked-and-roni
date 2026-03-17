@@ -9,6 +9,17 @@ const postSchema = new mongoose.Schema<Post>({
   },
   content: String,
   photoSrc: String,
+  city: {
+    type: String,
+    trim: true,
+    lowercase: true,
+  },
+  pricePerNight: {
+    type: Number,
+  },
+  nights: {
+    type: Number,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -24,5 +35,9 @@ const postSchema = new mongoose.Schema<Post>({
     default: [],
   },
 });
+
+postSchema.index({ city: 1 });
+postSchema.index({ pricePerNight: 1 });
+postSchema.index({ nights: 1 });
 
 export const PostModel = mongoose.model<Post>("posts", postSchema);

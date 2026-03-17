@@ -11,6 +11,11 @@ enum LocalStorageNames {
   RefreshToken = "REFRESH_TOKEN",
 }
 
+export const clearAuthStorage = () => {
+  localStorage.removeItem(LocalStorageNames.AccessToken);
+  localStorage.removeItem(LocalStorageNames.RefreshToken);
+};
+
 type CreateTokenResult = {
   accessToken: Token;
   refreshToken: Token;
@@ -90,26 +95,30 @@ const refreshTokenAndGenerateNewToken = async (refreshToken: string) => {
 };
 
 export const authLogout = async () => {
+  let refreshToken: string | null = null;
+
   try {
-    const { token } = JSON.parse(
-      localStorage.getItem(LocalStorageNames.RefreshToken) ?? ""
-    ) as Token;
+    const storedRefreshToken = JSON.parse(
+      localStorage.getItem(LocalStorageNames.RefreshToken) ?? "null"
+    ) as Token | null;
 
-    await axios.post(
-      `${AUTH_BASE_URL}/logout`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    refreshToken = storedRefreshToken?.token ?? null;
 
-    localStorage.removeItem(LocalStorageNames.AccessToken);
-    localStorage.removeItem(LocalStorageNames.RefreshToken);
+    if (refreshToken) {
+      await axios.post(
+        `${AUTH_BASE_URL}/logout`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${refreshToken}`,
+          },
+        }
+      );
+    }
   } catch (err) {
     console.log(err, "Failed to logout");
-    throw err;
+  } finally {
+    clearAuthStorage();
   }
 };
 
@@ -124,7 +133,7 @@ export const login = async (username: string, password: string) => {
 
     localStorage.setItem(
       LocalStorageNames.AccessToken,
-      JSON.stringify({ accessToken })
+      JSON.stringify(accessToken)
     );
 
     localStorage.setItem(
@@ -152,7 +161,7 @@ export const googleLogin = async (credential?: string) => {
 
     localStorage.setItem(
       LocalStorageNames.AccessToken,
-      JSON.stringify({ accessToken })
+      JSON.stringify(accessToken)
     );
 
     localStorage.setItem(
@@ -192,7 +201,7 @@ export const signup = async (userData: SignUpData) => {
 
     localStorage.setItem(
       LocalStorageNames.AccessToken,
-      JSON.stringify({ accessToken })
+      JSON.stringify(accessToken)
     );
 
     localStorage.setItem(

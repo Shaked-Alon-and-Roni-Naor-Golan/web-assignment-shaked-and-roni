@@ -7,9 +7,15 @@ import { UserContextProvider } from "./context/UserContext.tsx";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { PostsContextProvider } from "./context/PostsContext.tsx";
 
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+if (!googleClientId) {
+  throw new Error("Missing VITE_GOOGLE_CLIENT_ID in client/.env");
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <GoogleOAuthProvider clientId="1048046342911-bvt062chcgn9rj7te10o07lse41bb323.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId={googleClientId}>
       <UserContextProvider>
         <PostsContextProvider>
           <SnackbarProvider />

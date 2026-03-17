@@ -37,7 +37,7 @@ describe("ai_controller.enhanceReview", () => {
       response: { text: () => JSON.stringify({ text: "Enhanced review" }) },
     });
 
-    const req: any = { body: { reviewContent: "good movie" } };
+    const req: any = { body: { reviewContent: "good hotel" } };
     const res = mockRes();
 
     await enhanceReview(req, res);

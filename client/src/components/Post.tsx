@@ -10,6 +10,21 @@ import { useUserContext } from "../context/UserContext";
 import { usePostsContext } from "../context/PostsContext";
 import { deletePostById, updatePost } from "../services/posts";
 
+const errorDetails = (error: unknown) => {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error &&
+    typeof (error as { response?: unknown }).response === "object" &&
+    (error as { response?: unknown }).response !== null &&
+    "data" in ((error as { response?: { data?: unknown } }).response as object)
+  ) {
+    return (error as { response?: { data?: unknown } }).response?.data;
+  }
+
+  return undefined;
+};
+
 interface PostProps {
   post: Post;
   isEditable?: boolean;
@@ -19,31 +34,51 @@ interface PostProps {
 const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [description, setDescription] = useState(post?.content || "");
+  const [city, setCity] = useState(post?.city || "");
+  const [pricePerNight, setPricePerNight] = useState(
+    typeof post?.pricePerNight === "number" ? String(post.pricePerNight) : ""
+  );
+  const [nights, setNights] = useState(
+    typeof post?.nights === "number" ? String(post.nights) : ""
+  );
   const [newPhoto, setNewPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { user } = useUserContext() ?? {};
-  const { setPosts, posts } = usePostsContext() ?? {};
+  const { setPosts } = usePostsContext() ?? {};
   const navigate = useNavigate();
 
-  if (!post) {
-    return null;
-  }
-
   const onEditSave = async () => {
-    const updatedPostData = await updatePost(post._id, { content: description, photo: newPhoto ?? undefined });
+    const parsedPricePerNight = pricePerNight.trim();
+    const parsedNights = nights.trim();
+
+    const updatedPostData = await updatePost(post._id, {
+      content: description,
+      city,
+      pricePerNight:
+        parsedPricePerNight === "" ? undefined : Number(parsedPricePerNight),
+      nights: parsedNights === "" ? undefined : Number(parsedNights),
+      photo: newPhoto ?? undefined,
+    });
     
     if (updatedPostData) {
       updatePostInState(updatedPostData);
     }
   };
 
-  const deletePost = () => {
-    deletePostById(post._id);
-    const tempPosts = { ...posts };
-    delete tempPosts[post._id];
-    setPosts?.(tempPosts);
+  const deletePost = async () => {
+    try {
+      await deletePostById(post._id);
+      setPosts?.((prevPosts) => {
+        const nextPosts = { ...(prevPosts ?? {}) };
+        delete nextPosts[post._id];
+        return nextPosts;
+      });
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      console.error("Error details:", errorDetails(error));
+    }
   };
 
   const isLikedByCurrUser = useMemo(() => {
@@ -69,7 +104,7 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
       }
     } catch (error) {
       console.error("Error toggling like:", error);
-      console.error("Error details:", error.response?.data);
+      console.error("Error details:", errorDetails(error));
     }
   };
 
@@ -121,7 +156,7 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
         justifyContent: "center",
       }}
     >
-      {user?._id === post.owner._id && (
+      {user?._id === post.owner?._id && (
         <div
           className="edit-buttons"
           style={{
@@ -211,6 +246,28 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
               className="form-control mb-3"
               style={{ height: "40px", resize: "none" }}
             />
+            <input
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              className="form-control mb-2"
+              placeholder="City"
+            />
+            <input
+              type="number"
+              min={0}
+              value={pricePerNight}
+              onChange={(e) => setPricePerNight(e.target.value)}
+              className="form-control mb-2"
+              placeholder="Price per night"
+            />
+            <input
+              type="number"
+              min={1}
+              value={nights}
+              onChange={(e) => setNights(e.target.value)}
+              className="form-control mb-3"
+              placeholder="Number of nights"
+            />
             <div 
               style={{
                 position: "relative",
@@ -281,6 +338,29 @@ const PostComponent = ({ post, isEditable, showActionBar }: PostProps) => {
             className="hover-shadow"
           >
             <p className="text-center">{description}</p>
+            <div
+              style={{
+                width: "100%",
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                gap: "10px",
+                marginBottom: "8px",
+                fontSize: "0.9rem",
+              }}
+            >
+              {post.city && (
+                <span className="badge text-bg-light">City: {post.city}</span>
+              )}
+              {typeof post.pricePerNight === "number" && (
+                <span className="badge text-bg-light">
+                  Price/Night: ₪{post.pricePerNight}
+                </span>
+              )}
+              {typeof post.nights === "number" && (
+                <span className="badge text-bg-light">Nights: {post.nights}</span>
+              )}
+            </div>
             <img
               src={IMAGES_URL + post.photoSrc}
               alt="Post"
