@@ -6,8 +6,8 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist",
-    "strict": true
+    "strict": true,
+    "lib": ["es2015"]
   },
-  "lib": ["es2015"],
   "exclude": ["tests"]
 }
