@@ -8,7 +8,6 @@ import { useUserContext } from "../context/UserContext";
 import { ACCEPTED_IMAGE_TYPES } from "../constants/files";
 import { isEmpty } from "lodash";
 import { useNavigate } from "react-router-dom";
-import { FaWandMagicSparkles } from "react-icons/fa6";
 import { enqueueSnackbar } from "notistack";
 // import { enhanceReview } from "../services/ai";
 import { useState } from "react";
