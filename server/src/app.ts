@@ -40,7 +40,7 @@ const appPromise: Promise<any> = new Promise((resolve, reject) => {
       app.use(express.static("public"));
 
       app.use(
-        "/api-docs",
+        "/api/api-docs",
         swaggerUi.serve,
         swaggerUi.setup(specs, { explorer: true })
       );
@@ -51,27 +51,33 @@ const appPromise: Promise<any> = new Promise((resolve, reject) => {
 
       const authRouter = require("./routes/auth_route");
 
-      app.use("/auth", authRouter);
+      app.use("/api/auth", authRouter);
 
       const postsRouter = require("./routes/posts_route");
 
-      app.use("/posts", postsRouter);
+      app.use("/api/posts", postsRouter);
 
       const commentsRouter = require("./routes/comments_route");
 
-      app.use("/comments", commentsRouter);
+      app.use("/api/comments", commentsRouter);
 
       const usersRouter = require("./routes/users_route");
 
-      app.use("/users", usersRouter);
+      app.use("/api/users", usersRouter);
 
       const aiRouter = require("./routes/ai_route");
-      app.use("/ai", aiRouter);
+      app.use("/api/ai", aiRouter);
 
       app.use((error, req, res) => {
         console.error(error.stack);
         res.status(500).send("Something broke!");
       });
+
+      app.use(express.static(path.join(__dirname, 'dist')))
+
+      app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, '../../client/dist', 'index.html'))
+      })
 
       resolve(app);
     })
