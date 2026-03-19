@@ -5,4 +5,4 @@ export const ACCEPTED_IMAGE_TYPES = [
   "image/webp",
 ];
 
-export const IMAGES_URL = import.meta.env.VITE_SERVER_URL + "/images/";
+export const IMAGES_URL = import.meta.env.VITE_SERVER_URL_IMAGES + "/images/";
