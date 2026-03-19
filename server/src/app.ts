@@ -68,16 +68,16 @@ const appPromise: Promise<any> = new Promise((resolve, reject) => {
       const aiRouter = require("./routes/ai_route");
       app.use("/api/ai", authenticateToken, aiRouter);
 
-      app.use((error, req, res) => {
-        console.error(error.stack);
-        res.status(500).send("Something broke!");
-      });
-
       app.use(express.static(path.join(__dirname, 'dist')))
 
       app.get('*', (req, res) => {
         res.sendFile(path.join(__dirname, '../../client/dist', 'index.html'))
       })
+
+      app.use((error, req, res) => {
+        console.error(error.stack);
+        res.status(500).send("Something broke!");
+      });
 
       resolve(app);
     })
