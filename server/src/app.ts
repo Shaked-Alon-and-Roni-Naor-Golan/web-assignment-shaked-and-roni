@@ -51,22 +51,22 @@ const appPromise: Promise<any> = new Promise((resolve, reject) => {
 
       const authRouter = require("./routes/auth_route");
 
-      app.use("/api/auth", authRouter, authenticateToken);
+      app.use("/api/auth", authenticateToken, authRouter);
 
       const postsRouter = require("./routes/posts_route");
 
-      app.use("/api/posts", postsRouter, authenticateToken);
+      app.use("/api/posts", authenticateToken, postsRouter);
 
       const commentsRouter = require("./routes/comments_route");
 
-      app.use("/api/comments", commentsRouter, authenticateToken);
+      app.use("/api/comments", authenticateToken, commentsRouter);
 
       const usersRouter = require("./routes/users_route");
 
-      app.use("/api/users", usersRouter, authenticateToken);
+      app.use("/api/users", authenticateToken, usersRouter);
 
       const aiRouter = require("./routes/ai_route");
-      app.use("/api/ai", aiRouter, authenticateToken);
+      app.use("/api/ai", authenticateToken, aiRouter);
 
       app.use((error, req, res) => {
         console.error(error.stack);
