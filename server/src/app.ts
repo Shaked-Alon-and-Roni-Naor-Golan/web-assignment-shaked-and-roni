@@ -47,26 +47,26 @@ const appPromise: Promise<any> = new Promise((resolve, reject) => {
 
       app.use(bodyParser.json());
       app.use(bodyParser.urlencoded({ extended: true }));
-      app.use(authenticateToken);
+      // app.use(authenticateToken);
 
       const authRouter = require("./routes/auth_route");
 
-      app.use("/api/auth", authRouter);
+      app.use("/api/auth", authRouter, authenticateToken);
 
       const postsRouter = require("./routes/posts_route");
 
-      app.use("/api/posts", postsRouter);
+      app.use("/api/posts", postsRouter, authenticateToken);
 
       const commentsRouter = require("./routes/comments_route");
 
-      app.use("/api/comments", commentsRouter);
+      app.use("/api/comments", commentsRouter, authenticateToken);
 
       const usersRouter = require("./routes/users_route");
 
-      app.use("/api/users", usersRouter);
+      app.use("/api/users", usersRouter, authenticateToken);
 
       const aiRouter = require("./routes/ai_route");
-      app.use("/api/ai", aiRouter);
+      app.use("/api/ai", aiRouter, authenticateToken);
 
       app.use((error, req, res) => {
         console.error(error.stack);
