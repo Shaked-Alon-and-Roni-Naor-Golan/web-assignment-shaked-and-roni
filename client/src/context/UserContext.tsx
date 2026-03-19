@@ -39,7 +39,7 @@ export const UserContextProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const refetchUser = async () => {
-    getUser();
+    await getUser();
   };
 
   useEffect(() => {

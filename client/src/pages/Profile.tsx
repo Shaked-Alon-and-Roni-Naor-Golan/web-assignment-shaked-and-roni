@@ -7,7 +7,7 @@ import { enqueueSnackbar } from "notistack";
 import { PostsList } from "../components/PostsList";
 
 const Profile = () => {
-  const { user, setUser } = useUserContext() ?? {};
+  const { user, setUser, refetchUser } = useUserContext() ?? {};
   const { setPosts } = usePostsContext() ?? {};
   const userProfileRef = useRef<HTMLDivElement>(null);
   const [isProfileEditing, setIsProfileEditing] = useState(false);
@@ -38,18 +38,25 @@ const Profile = () => {
       } as any;
 
       setUser?.(nextUser);
+      await refetchUser?.();
 
       setPosts?.((prevPosts: any) => {
         const nextPosts = { ...(prevPosts ?? {}) };
         Object.keys(nextPosts).forEach((postId) => {
           const currPost = nextPosts[postId];
-          if (currPost?.owner?._id === nextUser._id) {
+          const syncedUser = {
+            ...nextUser,
+            photo: (updatedUser as any)?.photo ?? nextUser.photo,
+            username: (updatedUser as any)?.username ?? nextUser.username,
+          };
+
+          if (currPost?.owner?._id === syncedUser._id) {
             nextPosts[postId] = {
               ...currPost,
               owner: {
                 ...currPost.owner,
-                username: nextUser.username,
-                photo: nextUser.photo,
+                username: syncedUser.username,
+                photo: syncedUser.photo,
               },
             };
           }
