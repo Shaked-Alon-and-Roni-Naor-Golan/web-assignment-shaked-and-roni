@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosHeaders } from "axios";
 import { getToken } from "../services/auth";
 
 export const createAxiosInstance = (baseURL: string) => {
@@ -10,10 +10,13 @@ export const createAxiosInstance = (baseURL: string) => {
     try {
       const authToken = await getToken();
 
-      if (authToken) {
-        config.headers.set("Authorization", `Bearer ${authToken}`);
-        config.headers.set("Content-Type", "application/json", false);
-      } else throw new Error("No token found");
+      if (!authToken) {
+        throw new Error("No token found");
+      }
+
+      const headers = AxiosHeaders.from(config.headers);
+      headers.set("Authorization", `Bearer ${authToken}`);
+      config.headers = headers;
     } catch (err) {
       console.log("Can't handle token in request:", err);
     }
