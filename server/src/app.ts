@@ -51,7 +51,7 @@ const appPromise: Promise<any> = new Promise((resolve, reject) => {
 
       const authRouter = require("./routes/auth_route");
 
-      app.use("/api/auth", authenticateToken, authRouter);
+      app.use("/api/auth", authRouter);
 
       const postsRouter = require("./routes/posts_route");
 
