@@ -1,4 +1,5 @@
 import { useDropzone } from "react-dropzone";
+import blankImage from "../assets/blank_image.jpg";
 
 interface DropzoneComponentProps {
   onFileSelect: (file: File | null) => void;
@@ -50,7 +51,7 @@ const DropzoneComponent = ({
         ) : (
           <div className="text-center">
             <img
-              src="/src/assets/blank_image.jpg"
+              src={blankImage}
               style={{
                 ...(height && { height }),
                 ...(width && { width }),
