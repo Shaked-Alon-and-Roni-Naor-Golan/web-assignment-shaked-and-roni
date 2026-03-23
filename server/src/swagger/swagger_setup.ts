@@ -3,395 +3,113 @@ export const swaggerOptions = {
     openapi: "3.0.0",
     info: {
       title: "HotelLand API",
-      version: "1.0.0",
-      description: "API for managing hotel reviews",
+      version: "2.0.0",
+      description: "API for authentication, posts, comments, users and AI for HotelLand application",
     },
+    servers: [
+      {
+        url: "/api",
+        description: "API base path",
+      },
+    ],
     components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
       schemas: {
         User: {
           type: "object",
           properties: {
-            email: { type: "string" },
-            password: { type: "string" },
-            photoSrc: { type: "string" },
+            _id: { type: "string" },
             username: { type: "string" },
+            email: { type: "string", format: "email" },
+            photo: { type: "string", nullable: true },
           },
-          required: ["email", "password", "username"],
-        },
-        Post: {
-          type: "object",
-          properties: {
-            title: { type: "string" },
-            content: { type: "string" },
-            photoSrc: { type: "string" },
-            user: { $ref: "#/components/schemas/User" },
-            comments: { $ref: "#/components/schemas/Comment" },
-            likedBy: {
-              type: "array",
-              $ref: "#/components/schemas/User",
-            },
-          },
-          required: ["title", "content", "user"],
+          required: ["_id", "username", "email"],
         },
         Comment: {
           type: "object",
           properties: {
+            _id: { type: "string" },
             content: { type: "string" },
-            user: { $ref: "#/components/schemas/User" },
+            user: {
+              anyOf: [{ type: "string" }, { $ref: "#/components/schemas/User" }],
+            },
           },
-          required: ["content", "user"],
+          required: ["_id", "content", "user"],
         },
-        AuthTokens: {
+        Post: {
           type: "object",
           properties: {
-            accessToken: { type: "string" },
-            refreshToken: { type: "string" },
+            _id: { type: "string" },
+            owner: {
+              anyOf: [{ type: "string" }, { $ref: "#/components/schemas/User" }],
+            },
+            content: { type: "string" },
+            photoSrc: { type: "string" },
+            city: { type: "string", nullable: true },
+            pricePerNight: { type: "number", nullable: true },
+            nights: { type: "number", nullable: true },
+            createdAt: { type: "string", format: "date-time" },
+            likedBy: {
+              type: "array",
+              items: {
+                anyOf: [{ type: "string" }, { $ref: "#/components/schemas/User" }],
+              },
+            },
+            comments: {
+              type: "array",
+              items: {
+                anyOf: [{ type: "string" }, { $ref: "#/components/schemas/Comment" }],
+              },
+            },
+          },
+          required: ["_id", "owner", "content", "photoSrc"],
+        },
+        Token: {
+          type: "object",
+          properties: {
+            token: { type: "string" },
+            expireDate: { type: "string", format: "date-time" },
+          },
+          required: ["token", "expireDate"],
+        },
+        AuthResponse: {
+          type: "object",
+          properties: {
+            accessToken: { $ref: "#/components/schemas/Token" },
+            refreshToken: { $ref: "#/components/schemas/Token" },
             user: { $ref: "#/components/schemas/User" },
           },
           required: ["accessToken", "refreshToken", "user"],
         },
+        UpdateUserResponse: {
+          type: "object",
+          properties: {
+            user: { $ref: "#/components/schemas/User" },
+            accessToken: { $ref: "#/components/schemas/Token" },
+            refreshToken: { $ref: "#/components/schemas/Token" },
+          },
+          required: ["user", "accessToken", "refreshToken"],
+        },
       },
     },
+    tags: [
+      { name: "auth" },
+      { name: "users" },
+      { name: "posts" },
+      { name: "comments" },
+      { name: "ai" },
+    ],
     paths: {
-      "/users/me": {
-        get: {
-          summary: "Get the current user",
-          tags: ["users"],
-          responses: {
-            200: {
-              description: "The current user",
-              content: {
-                "application/json": {
-                  schema: { $ref: "#/components/schemas/User" },
-                },
-              },
-            },
-          },
-        },
-      },
-      "/users/{userId}": {
-        put: {
-          summary: "Update user by ID",
-          tags: ["users"],
-          parameters: [
-            {
-              name: "userId",
-              in: "path",
-              required: true,
-              description: "The ID of the user",
-              schema: {
-                type: "string",
-              },
-            },
-          ],
-          requestBody: {
-            required: true,
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/User" },
-              },
-            },
-          },
-          responses: {
-            200: {
-              description: "User updated",
-              content: {
-                "application/json": {
-                  schema: { $ref: "#/components/schemas/User" },
-                },
-              },
-            },
-            404: {
-              description: "User not found",
-            },
-          },
-        },
-      },
-      "/posts": {
-        get: {
-          summary: "Get all posts",
-          tags: ["posts"],
-          parameters: [
-            {
-              name: "postOwner",
-              in: "query",
-              description: "Filter posts by the owner's username",
-              required: false,
-              schema: {
-                type: "string",
-              },
-            },
-            {
-              name: "offset",
-              in: "query",
-              description: "The number of posts to skip (pagination)",
-              required: false,
-              schema: {
-                type: "integer",
-                default: 0,
-              },
-            },
-          ],
-          responses: {
-            200: {
-              description: "A list of posts",
-              content: {
-                "application/json": {
-                  schema: {
-                    type: "array",
-                    items: { $ref: "#/components/schemas/Post" },
-                  },
-                },
-              },
-            },
-          },
-        },
-        post: {
-          summary: "Create a new post",
-          tags: ["posts"],
-          requestBody: {
-            required: true,
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Post" },
-              },
-            },
-          },
-          responses: {
-            201: {
-              description: "Post created",
-              content: {
-                "application/json": {
-                  schema: { $ref: "#/components/schemas/Post" },
-                },
-              },
-            },
-          },
-        },
-      },
-      "/posts/{postId}": {
-        get: {
-          summary: "Get post by ID",
-          tags: ["posts"],
-          parameters: [
-            {
-              name: "postId",
-              in: "path",
-              required: true,
-              description: "The ID of the post",
-              schema: {
-                type: "string",
-              },
-            },
-          ],
-          responses: {
-            200: {
-              description: "Post found",
-              content: {
-                "application/json": {
-                  schema: { $ref: "#/components/schemas/Post" },
-                },
-              },
-            },
-            404: {
-              description: "Post not found",
-            },
-          },
-        },
-        put: {
-          summary: "Update post by ID",
-          tags: ["posts"],
-          parameters: [
-            {
-              name: "postId",
-              in: "path",
-              required: true,
-              description: "The ID of the post",
-              schema: {
-                type: "string",
-              },
-            },
-          ],
-          requestBody: {
-            required: true,
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Post" },
-              },
-            },
-          },
-          responses: {
-            200: {
-              description: "Post updated",
-              content: {
-                "application/json": {
-                  schema: { $ref: "#/components/schemas/Post" },
-                },
-              },
-            },
-            404: {
-              description: "Post not found",
-            },
-          },
-        },
-        delete: {
-          summary: "Delete post by ID",
-          tags: ["posts"],
-          parameters: [
-            {
-              name: "postId",
-              in: "path",
-              required: true,
-              description: "The ID of the post",
-              schema: {
-                type: "string",
-              },
-            },
-          ],
-          responses: {
-            200: {
-              description: "Post deleted",
-            },
-            404: {
-              description: "Post not found",
-            },
-          },
-        },
-      },
-      "/comments": {
-        get: {
-          summary: "Get all comments",
-          tags: ["comments"],
-          responses: {
-            200: {
-              description: "A list of comments",
-              content: {
-                "application/json": {
-                  schema: {
-                    type: "array",
-                    items: { $ref: "#/components/schemas/Comment" },
-                  },
-                },
-              },
-            },
-          },
-        },
-        post: {
-          summary: "Create a new comment",
-          tags: ["comments"],
-          requestBody: {
-            required: true,
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Comment" },
-              },
-            },
-          },
-          responses: {
-            201: {
-              description: "Comment created",
-              content: {
-                "application/json": {
-                  schema: { $ref: "#/components/schemas/Comment" },
-                },
-              },
-            },
-          },
-        },
-      },
-      "/comments/{commentId}": {
-        get: {
-          summary: "Get comment by ID",
-          tags: ["comments"],
-          parameters: [
-            {
-              name: "commentId",
-              in: "path",
-              required: true,
-              description: "The ID of the comment",
-              schema: {
-                type: "string",
-              },
-            },
-          ],
-          responses: {
-            200: {
-              description: "Comment found",
-              content: {
-                "application/json": {
-                  schema: { $ref: "#/components/schemas/Comment" },
-                },
-              },
-            },
-            404: {
-              description: "Comment not found",
-            },
-          },
-        },
-        put: {
-          summary: "Update comment by ID",
-          tags: ["comments"],
-          parameters: [
-            {
-              name: "commentId",
-              in: "path",
-              required: true,
-              description: "The ID of the comment",
-              schema: {
-                type: "string",
-              },
-            },
-          ],
-          requestBody: {
-            required: true,
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Comment" },
-              },
-            },
-          },
-          responses: {
-            200: {
-              description: "Comment updated",
-              content: {
-                "application/json": {
-                  schema: { $ref: "#/components/schemas/Comment" },
-                },
-              },
-            },
-            404: {
-              description: "Comment not found",
-            },
-          },
-        },
-        delete: {
-          summary: "Delete comment by ID",
-          tags: ["comments"],
-          parameters: [
-            {
-              name: "commentId",
-              in: "path",
-              required: true,
-              description: "The ID of the comment",
-              schema: {
-                type: "string",
-              },
-            },
-          ],
-          responses: {
-            200: {
-              description: "Comment deleted",
-            },
-            404: {
-              description: "Comment not found",
-            },
-          },
-        },
-      },
       "/auth/login": {
         post: {
-          summary: "Login user",
           tags: ["auth"],
+          summary: "Login with username/password",
           requestBody: {
             required: true,
             content: {
@@ -408,102 +126,58 @@ export const swaggerOptions = {
             },
           },
           responses: {
-            "200": {
-              description: "User logged in successfully",
+            200: {
+              description: "Authenticated",
               content: {
                 "application/json": {
-                  schema: { $ref: "#/components/schemas/AuthTokens" },
+                  schema: { $ref: "#/components/schemas/AuthResponse" },
                 },
               },
             },
-            "401": {
-              description: "Invalid credentials",
-            },
-            "500": {
-              description: "Internal server error",
-            },
+            500: { description: "Invalid credentials or server error" },
           },
         },
       },
       "/auth/register": {
         post: {
-          summary: "Register a new user",
           tags: ["auth"],
+          summary: "Register a new user",
           requestBody: {
             required: true,
             content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/User" },
-              },
-            },
-          },
-          responses: {
-            "200": {
-              description: "User registered successfully",
-              content: {
-                "application/json": {
-                  schema: { $ref: "#/components/schemas/AuthTokens" },
+              "multipart/form-data": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    file: { type: "string", format: "binary" },
+                    user: {
+                      type: "string",
+                      description: "JSON string: { username, email, password }",
+                    },
+                  },
+                  required: ["user"],
                 },
               },
             },
-            "400": {
-              description: "User already exists",
-            },
-            "500": {
-              description: "Internal server error",
-            },
           },
-        },
-      },
-      "/auth/logout": {
-        post: {
-          summary: "Logout user",
-          tags: ["auth"],
           responses: {
-            "200": {
-              description: "User logged out successfully",
-            },
-            "401": {
-              description: "No refresh token provided",
-            },
-            "403": {
-              description: "Unauthorized",
-            },
-            "500": {
-              description: "Internal server error",
-            },
-          },
-        },
-      },
-      "/auth/refresh-token": {
-        post: {
-          summary: "Refresh authentication token",
-          tags: ["auth"],
-          responses: {
-            "200": {
-              description: "Token refreshed successfully",
+            200: {
+              description: "Registered and authenticated",
               content: {
                 "application/json": {
-                  schema: { $ref: "#/components/schemas/AuthTokens" },
+                  schema: { $ref: "#/components/schemas/AuthResponse" },
                 },
               },
             },
-            "401": {
-              description: "No refresh token provided",
-            },
-            "403": {
-              description: "Unauthorized",
-            },
-            "500": {
-              description: "Internal server error",
-            },
+            400: { description: "Username/email already exists" },
+            500: { description: "Server error" },
           },
         },
       },
       "/auth/google-login": {
         post: {
-          summary: "Login using Google",
           tags: ["auth"],
+          summary: "Login with Google credential",
           requestBody: {
             required: true,
             content: {
@@ -519,24 +193,426 @@ export const swaggerOptions = {
             },
           },
           responses: {
-            "200": {
-              description: "User logged in via Google successfully",
+            200: {
+              description: "Authenticated",
               content: {
                 "application/json": {
-                  schema: { $ref: "#/components/schemas/AuthTokens" },
+                  schema: { $ref: "#/components/schemas/AuthResponse" },
                 },
               },
             },
-            "500": {
-              description: "Failed to sign in with Google",
+            500: { description: "Failed to sign in google" },
+          },
+        },
+      },
+      "/auth/logout": {
+        post: {
+          tags: ["auth"],
+          summary: "Logout using token in Authorization header",
+          security: [{ bearerAuth: [] }],
+          responses: {
+            200: { description: "Logged out successfully" },
+            401: { description: "No token provided" },
+            403: { description: "Unauthorized" },
+          },
+        },
+      },
+      "/auth/refresh-token": {
+        post: {
+          tags: ["auth"],
+          summary: "Refresh access token",
+          security: [{ bearerAuth: [] }],
+          responses: {
+            200: {
+              description: "Refreshed successfully",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/AuthResponse" },
+                },
+              },
             },
+            401: { description: "No token provided" },
+            403: { description: "Unauthorized" },
+          },
+        },
+      },
+      "/users/me": {
+        get: {
+          tags: ["users"],
+          summary: "Get current authenticated user",
+          security: [{ bearerAuth: [] }],
+          responses: {
+            200: {
+              description: "Current user",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/User" },
+                },
+              },
+            },
+            401: { description: "No token provided" },
+            404: { description: "Cannot find specified user" },
+          },
+        },
+      },
+      "/users/{userId}": {
+        put: {
+          tags: ["users"],
+          summary: "Update username/photo for a user",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "userId",
+              in: "path",
+              required: true,
+              schema: { type: "string" },
+            },
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              "multipart/form-data": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    file: { type: "string", format: "binary" },
+                    username: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "User updated",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/UpdateUserResponse" },
+                },
+              },
+            },
+            400: { description: "Username already exists" },
+            404: { description: "Cannot find specified user" },
+          },
+        },
+      },
+      "/posts": {
+        get: {
+          tags: ["posts"],
+          summary: "List posts",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "postOwner",
+              in: "query",
+              schema: { type: "string" },
+            },
+            {
+              name: "offset",
+              in: "query",
+              schema: { type: "integer", default: 0 },
+            },
+            {
+              name: "q",
+              in: "query",
+              schema: { type: "string" },
+            },
+          ],
+          responses: {
+            200: {
+              description: "Posts list",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/Post" },
+                  },
+                },
+              },
+            },
+          },
+        },
+        post: {
+          tags: ["posts"],
+          summary: "Create post",
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              "multipart/form-data": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    file: { type: "string", format: "binary" },
+                    post: {
+                      type: "string",
+                      description:
+                        "JSON string with post payload (owner, content, city?, pricePerNight?, nights?)",
+                    },
+                  },
+                  required: ["post"],
+                },
+              },
+            },
+          },
+          responses: {
+            201: {
+              description: "Created post",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/Post" },
+                },
+              },
+            },
+          },
+        },
+      },
+      "/posts/{postId}": {
+        get: {
+          tags: ["posts"],
+          summary: "Get post by id",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "postId",
+              in: "path",
+              required: true,
+              schema: { type: "string" },
+            },
+          ],
+          responses: {
+            200: {
+              description: "Post details",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/Post" },
+                },
+              },
+            },
+            404: { description: "Cannot find specified post" },
+          },
+        },
+        put: {
+          tags: ["posts"],
+          summary: "Update post or toggle like",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "postId",
+              in: "path",
+              required: true,
+              schema: { type: "string" },
+            },
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              "multipart/form-data": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    file: { type: "string", format: "binary" },
+                    updatedPostContent: {
+                      type: "string",
+                      description:
+                        "JSON string with fields for content/city/pricePerNight/nights OR { userId } for like toggle",
+                    },
+                    content: { type: "string" },
+                    city: { type: "string" },
+                    pricePerNight: { type: "number" },
+                    nights: { type: "number" },
+                    userId: { type: "string" },
+                  },
+                },
+              },
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    content: { type: "string" },
+                    city: { type: "string" },
+                    pricePerNight: { type: "number" },
+                    nights: { type: "number" },
+                    userId: { type: "string" },
+                    updatedPostContent: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            200: {
+              description: "Updated post",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/Post" },
+                },
+              },
+            },
+            403: { description: "You are not the owner of this post" },
+            404: { description: "Cannot find specified post" },
+          },
+        },
+        delete: {
+          tags: ["posts"],
+          summary: "Delete post by id",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "postId",
+              in: "path",
+              required: true,
+              schema: { type: "string" },
+            },
+          ],
+          responses: {
+            200: { description: "The post deleted" },
+            404: { description: "Post not found" },
+          },
+        },
+      },
+      "/comments": {
+        get: {
+          tags: ["comments"],
+          summary: "List comments",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "user",
+              in: "query",
+              schema: { type: "string" },
+            },
+          ],
+          responses: {
+            200: {
+              description: "Comments list",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/Comment" },
+                  },
+                },
+              },
+            },
+          },
+        },
+        post: {
+          tags: ["comments"],
+          summary: "Create comment for post",
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    postId: { type: "string" },
+                    comment: {
+                      type: "object",
+                      properties: {
+                        user: { type: "string" },
+                        content: { type: "string" },
+                      },
+                      required: ["user", "content"],
+                    },
+                  },
+                  required: ["postId", "comment"],
+                },
+              },
+            },
+          },
+          responses: {
+            201: {
+              description: "Created comment",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/Comment" },
+                },
+              },
+            },
+          },
+        },
+      },
+      "/comments/{commentId}": {
+        get: {
+          tags: ["comments"],
+          summary: "Get comment by id",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "commentId",
+              in: "path",
+              required: true,
+              schema: { type: "string" },
+            },
+          ],
+          responses: {
+            200: {
+              description: "Comment details",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/Comment" },
+                },
+              },
+            },
+            404: { description: "Comment not found" },
+          },
+        },
+        put: {
+          tags: ["comments"],
+          summary: "Update comment by id",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "commentId",
+              in: "path",
+              required: true,
+              schema: { type: "string" },
+            },
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    content: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            201: { description: "Comment updated" },
+            404: { description: "comment not found" },
+          },
+        },
+        delete: {
+          tags: ["comments"],
+          summary: "Delete comment by id",
+          security: [{ bearerAuth: [] }],
+          parameters: [
+            {
+              name: "commentId",
+              in: "path",
+              required: true,
+              schema: { type: "string" },
+            },
+          ],
+          responses: {
+            200: { description: "The comment deleted" },
+            404: { description: "Comment not found" },
           },
         },
       },
       "/ai/enhance": {
         post: {
-          summary: "Enhance a review",
           tags: ["ai"],
+          summary: "Enhance review text",
+          security: [{ bearerAuth: [] }],
           requestBody: {
             required: true,
             content: {
@@ -546,24 +622,26 @@ export const swaggerOptions = {
                   properties: {
                     reviewContent: { type: "string" },
                   },
+                  required: ["reviewContent"],
                 },
               },
             },
           },
           responses: {
-            201: {
-              description: "Review enhanced",
+            200: {
+              description: "Enhanced review text",
               content: {
                 "application/json": {
-                  enhancedContent: { type: "string" },
+                  schema: { type: "string" },
                 },
               },
             },
+            400: { description: "Review content is required" },
+            500: { description: "Failed to enhance review" },
           },
         },
       },
     },
   },
-
-  apis: ["./routes/*.ts"],
+  apis: [],
 };
