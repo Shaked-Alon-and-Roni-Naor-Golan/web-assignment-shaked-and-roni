@@ -25,6 +25,7 @@ const PostComments = ({ comments, onCommentAdd }: PostCommentsProps) => {
             type="text"
             className="form-control"
             placeholder="Comment something..."
+            dir="ltr"
             value={newCommentContent}
             onChange={(e) => setNewCommentContent(e.target.value)}
           />
@@ -37,7 +38,7 @@ const PostComments = ({ comments, onCommentAdd }: PostCommentsProps) => {
             <li className="list-group-item" key={comment.content}>
               <div
                 className="d-flex align-items-center mb-1"
-                style={{ direction: "rtl" }}
+                style={{ direction: "ltr", textAlign: "left" }}
               >
                 <img
                   src={
