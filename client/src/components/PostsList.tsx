@@ -137,12 +137,25 @@ export const PostsList = ({
                   </div>
                 ))
               ) : (
-                <div>
-                  <p>
-                    {searchQuery
-                      ? "No posts match your search."
-                      : "No posts available."}
-                  </p>
+                <div className="d-flex justify-content-center mt-4 mb-3">
+                  <div
+                    className="card border-0 shadow-sm text-center"
+                    style={{ width: "360px", borderRadius: "16px" }}
+                  >
+                    <div className="card-body py-4 px-3">
+                      <div style={{ fontSize: "2rem", lineHeight: 1 }}>🏨</div>
+                      <h6 className="mt-2 mb-1">
+                        {searchQuery
+                          ? "No matching posts yet"
+                          : "No posts yet"}
+                      </h6>
+                      <p className="text-muted mb-0" style={{ fontSize: "0.95rem" }}>
+                        {searchQuery
+                          ? "Try a different city, price, or nights range."
+                          : "Share your first hotel experience to get started."}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

@@ -207,6 +207,7 @@ const PostForm = ({ formData, onInputChange }: PostFormProps) => {
           <textarea
             {...register("content")}
             style={{ width: "85%" }}
+            placeholder="Describe your hotel experience..."
             value={formData.content}
             onChange={(e) => onInputChange("content", e.target.value)}
           />
