@@ -23,6 +23,18 @@ type CreateTokenResult = {
 
 type CreateTokenResultWithUser = CreateTokenResult & { user: User };
 
+export const storeAuthTokens = ({ accessToken, refreshToken }: CreateTokenResult) => {
+  localStorage.setItem(
+    LocalStorageNames.AccessToken,
+    JSON.stringify(accessToken)
+  );
+
+  localStorage.setItem(
+    LocalStorageNames.RefreshToken,
+    JSON.stringify(refreshToken)
+  );
+};
+
 export const getToken = async () => {
   return getAuthTokenFromStorage() ?? (await generateNewToken());
 };
@@ -78,15 +90,7 @@ const refreshTokenAndGenerateNewToken = async (refreshToken: string) => {
       )
     ).data;
 
-    localStorage.setItem(
-      LocalStorageNames.AccessToken,
-      JSON.stringify(accessToken)
-    );
-
-    localStorage.setItem(
-      LocalStorageNames.RefreshToken,
-      JSON.stringify(newRefreshToken)
-    );
+    storeAuthTokens({ accessToken, refreshToken: newRefreshToken });
 
     return accessToken.token;
   } catch (err) {
@@ -131,15 +135,7 @@ export const login = async (username: string, password: string) => {
       })
     ).data;
 
-    localStorage.setItem(
-      LocalStorageNames.AccessToken,
-      JSON.stringify(accessToken)
-    );
-
-    localStorage.setItem(
-      LocalStorageNames.RefreshToken,
-      JSON.stringify(refreshToken)
-    );
+    storeAuthTokens({ accessToken, refreshToken });
 
     return user;
   } catch (err) {
@@ -159,15 +155,7 @@ export const googleLogin = async (credential?: string) => {
       )
     ).data;
 
-    localStorage.setItem(
-      LocalStorageNames.AccessToken,
-      JSON.stringify(accessToken)
-    );
-
-    localStorage.setItem(
-      LocalStorageNames.RefreshToken,
-      JSON.stringify(refreshToken)
-    );
+    storeAuthTokens({ accessToken, refreshToken });
 
     return user;
   } catch (err) {
@@ -199,15 +187,7 @@ export const signup = async (userData: SignUpData) => {
       )
     ).data;
 
-    localStorage.setItem(
-      LocalStorageNames.AccessToken,
-      JSON.stringify(accessToken)
-    );
-
-    localStorage.setItem(
-      LocalStorageNames.RefreshToken,
-      JSON.stringify(refreshToken)
-    );
+    storeAuthTokens({ accessToken, refreshToken });
 
     return user;
   } catch (err) {

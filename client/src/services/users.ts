@@ -1,6 +1,8 @@
 import { AxiosError } from "axios";
 import { createAxiosInstance } from "../config/axiosInstance";
 import { UpdateUser } from "../interfaces/user";
+import { Token } from "../interfaces/auth";
+import { storeAuthTokens } from "./auth";
 
 const axiosInstance = createAxiosInstance(
   `${import.meta.env.VITE_SERVER_URL}/users`
@@ -25,18 +27,28 @@ export const updateUser = async (
       formData.append("username", username);
     }
 
-    return (
-      await axiosInstance.put(`/${userId}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-    ).data;
+    const response = await axiosInstance.put<{
+      user: any;
+      accessToken?: Token;
+      refreshToken?: Token;
+    }>(`/${userId}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    const { user, accessToken, refreshToken } = response.data ?? {};
+
+    if (accessToken && refreshToken) {
+      storeAuthTokens({ accessToken, refreshToken });
+    }
+
+    return user ?? response.data;
   } catch (error) {
     if (
       error instanceof AxiosError &&
       error.response?.status === 400 &&
-      error.response.data.userExist
+      error.response.data?.userExist
     ) {
       throw new Error(error.message);
     } else {

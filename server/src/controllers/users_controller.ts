@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 import { deleteFile, uploadFile } from "../utils/multer";
 import { UserModel } from "../models/user_model";
 import { createNewUser, findUserById } from "../services/user_service";
+import { generateAndSaveTokens } from "../utils/auth/auth";
 
 const getAllUsers = async (req: Request, res: Response) => {
   try {
@@ -73,8 +74,17 @@ const updateUser = async (req: Request, res: Response) => {
     );
 
     if (updatedUser) {
+      const { accessToken, refreshToken, userTokens } =
+        await generateAndSaveTokens(updatedUser);
+      updatedUser.tokens = userTokens;
+      await updatedUser.save();
+
       currentUserPhoto && deleteFile(currentUserPhoto);
-      res.status(201).send(updatedUser);
+      res.status(200).send({
+        user: updatedUser,
+        accessToken,
+        refreshToken,
+      });
     } else {
       req.file?.filename && deleteFile(req.file.filename);
       res.status(404).send("Cannot find specified user");
@@ -100,9 +110,16 @@ const deleteUserById = async (req: Request, res: Response) => {
   }
 };
 
-const getCurrentUser = async (req: Request & { user: User }, res: Response) => {
+const getCurrentUser = async (req: Request & { user: Pick<User, "_id"> }, res: Response) => {
   try {
-    res.send(req.user);
+    const userId = req.user?._id;
+    const currentUser = await UserModel.findById(userId).select("-password -tokens");
+
+    if (!currentUser) {
+      return res.status(404).send("Cannot find specified user");
+    }
+
+    res.send(currentUser);
   } catch (error) {
     res.status(500).send(error.message);
   }
