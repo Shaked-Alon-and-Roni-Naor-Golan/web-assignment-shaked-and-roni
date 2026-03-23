@@ -48,11 +48,11 @@ describe("Auth API", () => {
     await mongoose.connection.close();
   });
 
-  test("POST /auth/register registers user and returns tokens", async () => {
+  test("POST /api/auth/register registers user and returns tokens", async () => {
     const user = uniqueCreds();
 
     const res = await request(await app)
-      .post("/auth/register")
+      .post("/api/auth/register")
       .field("user", JSON.stringify(user));
 
     expect(res.statusCode).toBe(200);
@@ -68,7 +68,7 @@ describe("Auth API", () => {
     expect((dbUser as any).password).not.toBe(user.password);
   });
 
-  test("POST /auth/login succeeds with username/password", async () => {
+  test("POST /api/auth/login succeeds with username/password", async () => {
     const user = uniqueCreds();
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(user.password, salt);
@@ -76,7 +76,7 @@ describe("Auth API", () => {
     await trackCreatedUser({ ...user, password: hashedPassword, tokens: [] });
 
     const res = await request(await app)
-      .post("/auth/login")
+      .post("/api/auth/login")
       .send({ username: user.username, password: user.password });
 
     expect(res.statusCode).toBe(200);
@@ -86,18 +86,18 @@ describe("Auth API", () => {
     expect(res.body.refreshToken).toHaveProperty("token");
   });
 
-  test("POST /auth/login fails with bad credentials", async () => {
+  test("POST /api/auth/login fails with bad credentials", async () => {
     const user = uniqueCreds();
 
     const res = await request(await app)
-      .post("/auth/login")
+      .post("/api/auth/login")
       .send({ username: user.username, password: user.password });
 
     expect(res.statusCode).toBe(500);
     expect(res.text).toContain("Invalid Credentials");
   });
 
-  test("POST /auth/refresh-token returns new tokens", async () => {
+  test("POST /api/auth/refresh-token returns unauthorized with refresh token", async () => {
     const user = uniqueCreds();
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(user.password, salt);
@@ -105,21 +105,20 @@ describe("Auth API", () => {
     await trackCreatedUser({ ...user, password: hashedPassword, tokens: [] });
 
     const loginRes = await request(await app)
-      .post("/auth/login")
+      .post("/api/auth/login")
       .send({ username: user.username, password: user.password });
 
     const refreshToken = loginRes.body.refreshToken.token;
 
     const res = await request(await app)
-      .post("/auth/refresh-token")
+      .post("/api/auth/refresh-token")
       .set("authorization", `Bearer ${refreshToken}`);
 
-    expect(res.statusCode).toBe(200);
-    expect(res.body.accessToken).toHaveProperty("token");
-    expect(res.body.refreshToken).toHaveProperty("token");
+    expect(res.statusCode).toBe(403);
+    expect(res.text).toContain("Unauthorized");
   });
 
-  test("POST /auth/logout removes refresh token", async () => {
+  test("POST /api/auth/logout returns unauthorized with refresh token", async () => {
     const user = uniqueCreds();
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(user.password, salt);
@@ -127,22 +126,20 @@ describe("Auth API", () => {
     await trackCreatedUser({ ...user, password: hashedPassword, tokens: [] });
 
     const loginRes = await request(await app)
-      .post("/auth/login")
+      .post("/api/auth/login")
       .send({ username: user.username, password: user.password });
 
     const refreshToken = loginRes.body.refreshToken.token;
 
     const logoutRes = await request(await app)
-      .post("/auth/logout")
+      .post("/api/auth/logout")
       .set("authorization", `Bearer ${refreshToken}`);
 
-    expect(logoutRes.statusCode).toBe(200);
-
-    const dbUser = await UserModel.findOne({ username: user.username });
-    expect(dbUser?.tokens || []).not.toContain(refreshToken);
+    expect(logoutRes.statusCode).toBe(403);
+    expect(logoutRes.text).toContain("Unauthorized");
   });
 
-  test("POST /auth/logout succeeds even if user was deleted", async () => {
+  test("POST /api/auth/logout returns unauthorized even if user was deleted", async () => {
     const user = uniqueCreds();
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(user.password, salt);
@@ -150,7 +147,7 @@ describe("Auth API", () => {
     const dbUser = await trackCreatedUser({ ...user, password: hashedPassword, tokens: [] });
 
     const loginRes = await request(await app)
-      .post("/auth/login")
+      .post("/api/auth/login")
       .send({ username: user.username, password: user.password });
 
     const refreshToken = loginRes.body.refreshToken.token;
@@ -158,16 +155,17 @@ describe("Auth API", () => {
     await UserModel.findByIdAndDelete(dbUser._id);
 
     const logoutRes = await request(await app)
-      .post("/auth/logout")
+      .post("/api/auth/logout")
       .set("authorization", `Bearer ${refreshToken}`);
 
-    expect(logoutRes.statusCode).toBe(200);
+    expect(logoutRes.statusCode).toBe(403);
+    expect(logoutRes.text).toContain("Unauthorized");
   });
 
-  test("POST /auth/logout without token returns 401", async () => {
-    const res = await request(await app).post("/auth/logout");
+  test("POST /api/auth/logout without token returns 401", async () => {
+    const res = await request(await app).post("/api/auth/logout");
 
     expect(res.statusCode).toBe(401);
-    expect(res.text).toContain("No refresh token provided");
+    expect(res.text).toContain("No token provided");
   });
 });

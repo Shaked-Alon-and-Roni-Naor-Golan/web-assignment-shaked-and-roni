@@ -101,7 +101,7 @@ describe("Comments API", () => {
     await mongoose.connection.close();
   });
 
-  test("POST /comments creates comment and links it to post", async () => {
+  test("POST /api/comments creates comment and links it to post", async () => {
     const { user, token } = await createUser("comment_user");
     createdUserIds.add(user._id);
 
@@ -113,7 +113,7 @@ describe("Comments API", () => {
     });
 
     const res = await request(await app)
-      .post("/comments")
+      .post("/api/comments")
       .set("authorization", `Bearer ${token}`)
       .send({
         postId: post._id,
@@ -130,14 +130,14 @@ describe("Comments API", () => {
     expect((updatedPost?.comments || []).length).toBe(1);
   });
 
-  test("GET /comments returns list", async () => {
+  test("GET /api/comments returns list", async () => {
     const { user, token } = await createUser("comments_get");
     createdUserIds.add(user._id);
 
     await trackComment({ user: user._id, content: "one" });
 
     const res = await request(await app)
-      .get("/comments")
+      .get("/api/comments")
       .set("authorization", `Bearer ${token}`);
 
     expect(res.statusCode).toBe(200);
@@ -145,7 +145,7 @@ describe("Comments API", () => {
     expect(res.body.length).toBeGreaterThan(0);
   });
 
-  test("GET /comments?user filters by user", async () => {
+  test("GET /api/comments?user filters by user", async () => {
     const { user: userA, token } = await createUser("comments_a");
     const { user: userB } = await createUser("comments_b");
     createdUserIds.add(userA._id);
@@ -155,14 +155,14 @@ describe("Comments API", () => {
     await trackComment({ user: userB._id, content: "B" });
 
     const res = await request(await app)
-      .get(`/comments?user=${userA._id}`)
+      .get(`/api/comments?user=${userA._id}`)
       .set("authorization", `Bearer ${token}`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.length).toBe(1);
   });
 
-  test("PUT /comments/:commentId updates comment", async () => {
+  test("PUT /api/comments/:commentId updates comment", async () => {
     const { user, token } = await createUser("comments_update");
     createdUserIds.add(user._id);
 
@@ -172,7 +172,7 @@ describe("Comments API", () => {
     });
 
     const res = await request(await app)
-      .put(`/comments/${comment._id}`)
+      .put(`/api/comments/${comment._id}`)
       .set("authorization", `Bearer ${token}`)
       .send({ content: "updated" });
 
@@ -182,7 +182,7 @@ describe("Comments API", () => {
     expect(updated?.content).toBe("updated");
   });
 
-  test("DELETE /comments/:commentId deletes comment", async () => {
+  test("DELETE /api/comments/:commentId deletes comment", async () => {
     const { user, token } = await createUser("comments_delete");
     createdUserIds.add(user._id);
 
@@ -192,7 +192,7 @@ describe("Comments API", () => {
     });
 
     const res = await request(await app)
-      .delete(`/comments/${comment._id}`)
+      .delete(`/api/comments/${comment._id}`)
       .set("authorization", `Bearer ${token}`);
 
     expect(res.statusCode).toBe(200);
@@ -201,13 +201,13 @@ describe("Comments API", () => {
     expect(deleted).toBeNull();
   });
 
-  test("GET /comments/:commentId returns 404 for missing comment", async () => {
+  test("GET /api/comments/:commentId returns 404 for missing comment", async () => {
     const { user, token } = await createUser("comments_missing");
     createdUserIds.add(user._id);
     const fakeId = new mongoose.Types.ObjectId();
 
     const res = await request(await app)
-      .get(`/comments/${fakeId}`)
+      .get(`/api/comments/${fakeId}`)
       .set("authorization", `Bearer ${token}`);
 
     expect(res.statusCode).toBe(404);

@@ -81,14 +81,14 @@ describe("Posts API", () => {
     await mongoose.connection.close();
   });
 
-  test("GET /posts without token returns 401", async () => {
-    const res = await request(await app).get("/posts");
+  test("GET /api/posts without token returns 401", async () => {
+    const res = await request(await app).get("/api/posts");
 
     expect(res.statusCode).toBe(401);
     expect(res.text).toContain("No token");
   });
 
-  test("GET /posts returns posts", async () => {
+  test("GET /api/posts returns posts", async () => {
     const owner = await createUser("owner");
     createdUserIds.add(owner._id);
     const token = tokenFor(owner);
@@ -100,7 +100,7 @@ describe("Posts API", () => {
     });
 
     const res = await request(await app)
-      .get("/posts")
+      .get("/api/posts")
       .set("authorization", `Bearer ${token}`);
 
     expect(res.statusCode).toBe(200);
@@ -109,7 +109,7 @@ describe("Posts API", () => {
     expect(res.body[0]).toHaveProperty("content");
   });
 
-  test("GET /posts?postOwner filters by owner", async () => {
+  test("GET /api/posts?postOwner filters by owner", async () => {
     const owner = await createUser("owner_filter");
     const other = await createUser("other_filter");
     createdUserIds.add(owner._id);
@@ -128,7 +128,7 @@ describe("Posts API", () => {
     });
 
     const res = await request(await app)
-      .get(`/posts?postOwner=${owner._id}&offset=0`)
+      .get(`/api/posts?postOwner=${owner._id}&offset=0`)
       .set("authorization", `Bearer ${token}`);
 
     expect(res.statusCode).toBe(200);
@@ -136,7 +136,7 @@ describe("Posts API", () => {
     expect(res.body[0].owner._id).toBe(owner._id);
   });
 
-  test("GET /posts?q filters posts by city", async () => {
+  test("GET /api/posts?q filters posts by city", async () => {
     const owner = await createUser("owner_search");
     createdUserIds.add(owner._id);
     const token = tokenFor(owner);
@@ -168,7 +168,7 @@ describe("Posts API", () => {
     });
 
     const res = await request(await app)
-      .get(`/posts?q=hotels%20in%20tel%20aviv&postOwner=${owner._id}`)
+      .get(`/api/posts?q=hotels%20in%20tel%20aviv&postOwner=${owner._id}`)
       .set("authorization", `Bearer ${token}`);
 
     expect(res.statusCode).toBe(200);
@@ -176,7 +176,7 @@ describe("Posts API", () => {
     expect(res.body[0].city).toBe("tel aviv");
   });
 
-  test("GET /posts?q filters posts by price range", async () => {
+  test("GET /api/posts?q filters posts by price range", async () => {
     const owner = await createUser("owner_price_range");
     createdUserIds.add(owner._id);
     const token = tokenFor(owner);
@@ -208,7 +208,7 @@ describe("Posts API", () => {
     });
 
     const res = await request(await app)
-      .get(`/posts?q=hotels%20between%20300%20and%20700&postOwner=${owner._id}`)
+      .get(`/api/posts?q=hotels%20between%20300%20and%20700&postOwner=${owner._id}`)
       .set("authorization", `Bearer ${token}`);
 
     expect(res.statusCode).toBe(200);
@@ -216,7 +216,7 @@ describe("Posts API", () => {
     expect(res.body[0].pricePerNight).toBe(550);
   });
 
-  test("GET /posts?q filters posts by nights range", async () => {
+  test("GET /api/posts?q filters posts by nights range", async () => {
     const owner = await createUser("owner_nights_range");
     createdUserIds.add(owner._id);
     const token = tokenFor(owner);
@@ -248,7 +248,7 @@ describe("Posts API", () => {
     });
 
     const res = await request(await app)
-      .get(`/posts?q=for%202-4%20nights&postOwner=${owner._id}`)
+      .get(`/api/posts?q=for%202-4%20nights&postOwner=${owner._id}`)
       .set("authorization", `Bearer ${token}`);
 
     expect(res.statusCode).toBe(200);
@@ -256,7 +256,7 @@ describe("Posts API", () => {
     expect(res.body[0].nights).toBe(3);
   });
 
-  test("GET /posts?q supports combined city and price filters", async () => {
+  test("GET /api/posts?q supports combined city and price filters", async () => {
     const owner = await createUser("owner_combined");
     createdUserIds.add(owner._id);
     const token = tokenFor(owner);
@@ -292,7 +292,7 @@ describe("Posts API", () => {
     });
 
     const res = await request(await app)
-      .get(`/posts?q=eilat%20under%20700&postOwner=${owner._id}`)
+      .get(`/api/posts?q=eilat%20under%20700&postOwner=${owner._id}`)
       .set("authorization", `Bearer ${token}`);
 
     expect(res.statusCode).toBe(200);
@@ -301,7 +301,7 @@ describe("Posts API", () => {
     expect(res.body[0].pricePerNight).toBe(650);
   });
 
-  test("PUT /posts/:postId toggles like for user", async () => {
+  test("PUT /api/posts/:postId toggles like for user", async () => {
     const owner = await createUser("owner_like");
     const liker = await createUser("liker");
     createdUserIds.add(owner._id);
@@ -317,7 +317,7 @@ describe("Posts API", () => {
     });
 
     const likeRes = await request(await app)
-      .put(`/posts/${post._id}`)
+      .put(`/api/posts/${post._id}`)
       .set("authorization", `Bearer ${ownerToken}`)
       .send({ userId: liker._id });
 
@@ -325,7 +325,7 @@ describe("Posts API", () => {
     expect(likeRes.body.likedBy.length).toBe(1);
 
     const unlikeRes = await request(await app)
-      .put(`/posts/${post._id}`)
+      .put(`/api/posts/${post._id}`)
       .set("authorization", `Bearer ${ownerToken}`)
       .send({ userId: liker._id });
 
@@ -333,7 +333,7 @@ describe("Posts API", () => {
     expect(unlikeRes.body.likedBy.length).toBe(0);
   });
 
-  test("PUT /posts/:postId forbids content update for non-owner", async () => {
+  test("PUT /api/posts/:postId forbids content update for non-owner", async () => {
     const owner = await createUser("owner_edit");
     const notOwner = await createUser("not_owner");
     createdUserIds.add(owner._id);
@@ -348,7 +348,7 @@ describe("Posts API", () => {
     });
 
     const res = await request(await app)
-      .put(`/posts/${post._id}`)
+      .put(`/api/posts/${post._id}`)
       .set("authorization", `Bearer ${nonOwnerToken}`)
       .send({ updatedPostContent: JSON.stringify({ content: "Hacked" }) });
 
@@ -356,7 +356,7 @@ describe("Posts API", () => {
     expect(res.text).toContain("not the owner");
   });
 
-  test("DELETE /posts/:postId deletes post", async () => {
+  test("DELETE /api/posts/:postId deletes post", async () => {
     const owner = await createUser("owner_delete");
     createdUserIds.add(owner._id);
     const token = tokenFor(owner);
@@ -368,7 +368,7 @@ describe("Posts API", () => {
     });
 
     const res = await request(await app)
-      .delete(`/posts/${post._id}`)
+      .delete(`/api/posts/${post._id}`)
       .set("authorization", `Bearer ${token}`);
 
     expect(res.statusCode).toBe(200);
@@ -377,14 +377,14 @@ describe("Posts API", () => {
     expect(deleted).toBeNull();
   });
 
-  test("GET /posts/:postId returns 404 for missing post", async () => {
+  test("GET /api/posts/:postId returns 404 for missing post", async () => {
     const user = await createUser("owner_missing");
     createdUserIds.add(user._id);
     const token = tokenFor(user);
     const fakeId = new mongoose.Types.ObjectId();
 
     const res = await request(await app)
-      .get(`/posts/${fakeId}`)
+      .get(`/api/posts/${fakeId}`)
       .set("authorization", `Bearer ${token}`);
 
     expect(res.statusCode).toBe(404);

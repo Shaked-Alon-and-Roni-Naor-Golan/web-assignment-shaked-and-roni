@@ -102,6 +102,39 @@ describe("auth_controller unit", () => {
     expect(res.send).toHaveBeenCalledWith("Unauthorized");
   });
 
+  test("logout returns 401 when refresh token missing", async () => {
+    const req: any = { headers: {} };
+    const res = mockRes();
+
+    logout(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.send).toHaveBeenCalledWith("No refresh token provided");
+  });
+
+  test("logout removes matching refresh token and returns 200", async () => {
+    const save = jest.fn().mockResolvedValue(undefined);
+    jest.spyOn(jwt, "verify").mockImplementation((token: any, secret: any, cb: any) => {
+      cb(null, { _id: "u1" });
+      return {} as any;
+    });
+    jest.spyOn(UserModel, "findById").mockResolvedValueOnce({
+      _id: "u1",
+      tokens: ["tokenA", "tokenB"],
+      save,
+    } as any);
+
+    const req: any = { headers: { authorization: "Bearer tokenA" } };
+    const res = mockRes();
+
+    logout(req, res);
+    await new Promise((resolve) => setImmediate(resolve));
+
+    expect(save).toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.send).toHaveBeenCalledWith("Logged out successfully");
+  });
+
   test("logout returns 200 and clears tokens when token not in user list", async () => {
     jest.spyOn(jwt, "verify").mockImplementation((token: any, secret: any, cb: any) => {
       cb(null, { _id: "u1" });
@@ -231,6 +264,42 @@ describe("auth_controller unit", () => {
     await refreshToken(req, res);
 
     expect(res.status).toHaveBeenCalledWith(403);
+  });
+
+  test("refreshToken returns 200 and rotated tokens on success", async () => {
+    const save = jest.fn().mockResolvedValue(undefined);
+    const user: any = {
+      _id: "u1",
+      tokens: ["tokenA"],
+      save,
+    };
+
+    jest.spyOn(jwt, "verify").mockImplementation((token: any, secret: any, cb: any) => {
+      cb(null, { _id: "u1" });
+      return {} as any;
+    });
+    jest.spyOn(UserModel, "findById").mockResolvedValueOnce(user);
+    jest.spyOn(authUtils, "generateAndSaveTokens").mockResolvedValueOnce({
+      accessToken: { token: "new-access", expireDate: new Date() as any },
+      refreshToken: { token: "new-refresh", expireDate: new Date() as any },
+      userTokens: ["new-refresh"],
+    } as any);
+
+    const req: any = { headers: { authorization: "Bearer tokenA" } };
+    const res = mockRes();
+
+    await refreshToken(req, res);
+    await new Promise((resolve) => setImmediate(resolve));
+
+    expect(save).toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        accessToken: expect.objectContaining({ token: "new-access" }),
+        refreshToken: expect.objectContaining({ token: "new-refresh" }),
+        user,
+      })
+    );
   });
 
   test("googleLogin returns 500 when verification fails", async () => {

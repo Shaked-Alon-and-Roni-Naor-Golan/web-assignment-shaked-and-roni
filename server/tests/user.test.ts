@@ -69,19 +69,19 @@ describe("Users API", () => {
     await mongoose.connection.close();
   });
 
-  test("GET /users/me without token returns 401", async () => {
-    const res = await request(await app).get("/users/me");
+  test("GET /api/users/me without token returns 401", async () => {
+    const res = await request(await app).get("/api/users/me");
 
     expect(res.statusCode).toBe(401);
     expect(res.text).toContain("No token");
   });
 
-  test("GET /users/me with token returns current user payload", async () => {
+  test("GET /api/users/me with token returns current user payload", async () => {
     const { user, token } = await createUser();
     createdUserIds.add(user._id);
 
     const res = await request(await app)
-      .get("/users/me")
+      .get("/api/users/me")
       .set("authorization", `Bearer ${token}`);
 
     expect(res.statusCode).toBe(200);
@@ -90,30 +90,30 @@ describe("Users API", () => {
     expect(res.body.email).toBe(user.email);
   });
 
-  test("PUT /users/:userId updates username", async () => {
+  test("PUT /api/users/:userId updates username", async () => {
     const { user, token } = await createUser();
     createdUserIds.add(user._id);
 
     const res = await request(await app)
-      .put(`/users/${user._id}`)
+      .put(`/api/users/${user._id}`)
       .set("authorization", `Bearer ${token}`)
       .send({ username: "updated_user_name" });
 
-    expect(res.statusCode).toBe(201);
-    expect(res.body.username).toBe("updated_user_name");
+    expect(res.statusCode).toBe(200);
+    expect(res.body.user.username).toBe("updated_user_name");
 
     const updated = await UserModel.findById(user._id);
     expect(updated?.username).toBe("updated_user_name");
   });
 
-  test("PUT /users/:userId returns 404 for non-existing user", async () => {
+  test("PUT /api/users/:userId returns 404 for non-existing user", async () => {
     const { user, token } = await createUser();
     createdUserIds.add(user._id);
 
     const fakeId = "507f1f77bcf86cd799439011";
 
     const res = await request(await app)
-      .put(`/users/${fakeId}`)
+      .put(`/api/users/${fakeId}`)
       .set("authorization", `Bearer ${token}`)
       .send({ username: "any" });
 

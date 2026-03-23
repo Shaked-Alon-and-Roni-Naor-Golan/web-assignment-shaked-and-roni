@@ -9,6 +9,7 @@ import {
 import { UserModel } from "../../src/models/user_model";
 import * as userService from "../../src/services/user_service";
 import * as multerUtils from "../../src/utils/multer";
+import * as authUtils from "../../src/utils/auth/auth";
 
 describe("users_controller unit", () => {
   const mockRes = () => {
@@ -165,6 +166,48 @@ describe("users_controller unit", () => {
     expect(res.status).toHaveBeenCalledWith(500);
   });
 
+  test("updateUser returns 200 and deletes previous photo when new one uploaded", async () => {
+    jest.spyOn(multerUtils, "uploadFile").mockResolvedValueOnce();
+    jest.spyOn(UserModel, "findOne").mockResolvedValueOnce(null as any);
+    jest.spyOn(UserModel, "findById").mockResolvedValueOnce({
+      _id: "u1",
+      photo: "old.jpg",
+    } as any);
+
+    const save = jest.fn().mockResolvedValue(undefined);
+    const updatedUser: any = {
+      _id: "u1",
+      username: "ok",
+      tokens: [],
+      save,
+    };
+    jest.spyOn(UserModel, "findOneAndUpdate").mockResolvedValueOnce(updatedUser);
+    jest.spyOn(authUtils, "generateAndSaveTokens").mockResolvedValueOnce({
+      accessToken: { token: "a", expireDate: new Date() as any },
+      refreshToken: { token: "r", expireDate: new Date() as any },
+      userTokens: ["r"],
+    } as any);
+
+    const deleteSpy = jest.spyOn(multerUtils, "deleteFile").mockImplementation(() => {});
+    const req: any = {
+      params: { userId: "u1" },
+      body: { username: "ok" },
+      file: { filename: "new.jpg" },
+    };
+    const res = mockRes();
+
+    await updateUser(req, res);
+
+    expect(save).toHaveBeenCalled();
+    expect(deleteSpy).toHaveBeenCalledWith("old.jpg");
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        user: updatedUser,
+      })
+    );
+  });
+
   test("deleteUserById returns 404 when nothing deleted", async () => {
     jest.spyOn(UserModel, "deleteOne").mockResolvedValueOnce({ deletedCount: 0 } as any);
 
@@ -199,6 +242,10 @@ describe("users_controller unit", () => {
   });
 
   test("getCurrentUser catch branch returns 500 if res.send throws", async () => {
+    jest.spyOn(UserModel, "findById").mockReturnValueOnce({
+      select: jest.fn().mockResolvedValueOnce({ _id: "u1", username: "tester" }),
+    } as any);
+
     const req: any = { user: { _id: "u1" } };
     const res: any = {};
     res.send = jest
@@ -212,5 +259,19 @@ describe("users_controller unit", () => {
     await getCurrentUser(req, res);
 
     expect(res.status).toHaveBeenCalledWith(500);
+  });
+
+  test("getCurrentUser returns 404 when user not found", async () => {
+    jest.spyOn(UserModel, "findById").mockReturnValueOnce({
+      select: jest.fn().mockResolvedValueOnce(null),
+    } as any);
+
+    const req: any = { user: { _id: "u1" } };
+    const res = mockRes();
+
+    await getCurrentUser(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.send).toHaveBeenCalledWith("Cannot find specified user");
   });
 });
