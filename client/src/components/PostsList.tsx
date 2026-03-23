@@ -5,10 +5,18 @@ import { usePostsContext } from "../context/PostsContext";
 type Props = {
   currentUser?: string;
   searchQuery?: string;
+  onSearchLoadingChange?: (isLoading: boolean) => void;
 };
 
-export const PostsList = ({ currentUser, searchQuery }: Props) => {
+export const PostsList = ({
+  currentUser,
+  searchQuery,
+  onSearchLoadingChange,
+}: Props) => {
   const [, setCurrentOffset] = useState<number>(0);
+  const [pendingSearchQuery, setPendingSearchQuery] = useState<string | null>(
+    null
+  );
   const { posts, fetchPosts, isLoading } = usePostsContext() ?? {};
 
   const reFetch = useCallback(
@@ -26,6 +34,30 @@ export const PostsList = ({ currentUser, searchQuery }: Props) => {
     setCurrentOffset(0);
     fetchPosts?.({ ownerId: currentUser, offset: 0, searchQuery, replace: true });
   }, [currentUser, fetchPosts, searchQuery]);
+
+  useEffect(() => {
+    const normalizedSearch = searchQuery?.trim() ?? "";
+
+    if (normalizedSearch) {
+      setPendingSearchQuery(normalizedSearch);
+      onSearchLoadingChange?.(true);
+      return;
+    }
+
+    setPendingSearchQuery(null);
+    onSearchLoadingChange?.(false);
+  }, [onSearchLoadingChange, searchQuery]);
+
+  useEffect(() => {
+    if (!pendingSearchQuery) {
+      return;
+    }
+
+    if (!isLoading) {
+      onSearchLoadingChange?.(false);
+      setPendingSearchQuery(null);
+    }
+  }, [isLoading, onSearchLoadingChange, pendingSearchQuery]);
 
   const loaderRef = useRef(null);
 
