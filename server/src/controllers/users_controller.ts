@@ -79,7 +79,9 @@ const updateUser = async (req: Request, res: Response) => {
       updatedUser.tokens = userTokens;
       await updatedUser.save();
 
-      currentUserPhoto && deleteFile(currentUserPhoto);
+      if (req.file?.filename && currentUserPhoto) {
+        deleteFile(currentUserPhoto);
+      }
       res.status(200).send({
         user: updatedUser,
         accessToken,
