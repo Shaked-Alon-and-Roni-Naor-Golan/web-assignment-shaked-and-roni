@@ -18,8 +18,8 @@ const Navbar = () => {
 
   return (
     <nav
-      className="navbar navbar-expand-lg navbar-dark bg-dark"
-      style={{ justifyContent: "space-between" }}
+      className="navbar navbar-expand-lg navbar-dark bg-dark fixed-top"
+      style={{ justifyContent: "space-between", width: "100%", zIndex: 1030 }}
     >
       <div className="container">
         <Link className="navbar-brand" to="/">

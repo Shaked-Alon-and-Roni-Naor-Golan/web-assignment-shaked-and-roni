@@ -58,7 +58,7 @@ const SignIn = () => {
           <p className="text-muted">Wanna see our hotels? Just sign in!</p>
         </div>
         <SignInForm formData={formData} onInputChange={handleInputChange} />
-        <div className="mt-2 px-7">
+        <div className="mt-2 d-flex justify-content-center">
           <GoogleLogin
             onSuccess={handleGoogleLogin}
             onError={googleLoginError}
