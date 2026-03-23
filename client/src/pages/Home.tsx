@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { KeyboardEvent, useState } from "react";
 import { PostsList } from "../components/PostsList";
 
 const AISearchLoader = ({ query }: { query: string }) => {
@@ -29,6 +29,15 @@ const Home = () => {
     setAppliedSearchText(searchText.trim());
   };
 
+  const handleSearchKeyDown = (
+    event: KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      applySearch();
+    }
+  };
+
   return (
     <div
       style={{
@@ -46,6 +55,7 @@ const Home = () => {
             placeholder="Search posts (e.g. hotels in Tel Aviv)"
             value={searchText}
             onChange={(event) => setSearchText(event.target.value)}
+            onKeyDown={handleSearchKeyDown}
           />
           <button className="btn btn-primary" type="button" onClick={applySearch}>
             Search
